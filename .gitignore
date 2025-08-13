@@ -1,0 +1,9 @@
+config.py
+__pycache__
+.ipynb_checkpoints
+*.egg-info
+test
+.vscode
+site
+build
+.DS_Store
