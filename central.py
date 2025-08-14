@@ -46,7 +46,7 @@ def add(content, meta={}):
     save_gz("embedding.gz", e_data)
     save_gz("meta.gz", m_data)
     return doc_id
-def del(doc_id):
+def delete(doc_id):
     global e_data, m_data
     doc_path = os.path.join(config.CENTRAL_DATA_PATH, f"documents/{doc_id}.gz")
     os.remove(doc_path)
@@ -57,12 +57,16 @@ def del(doc_id):
     return
 def search(q, n=5, threshold=0):
     result = []
-    global e_data
+    global e_data, m_data
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
     for doc_id, embedding in e_data.items():
         score = cos_sim(q_embedding, np.array(embedding))
         if score >= threshold:
-            result.append((doc_id, score))
-    result.sort(key=lambda x: x[1], reverse=True)
+            meta = m_data[doc_id]
+            content = load_gz(os.path.join(config.CENTRAL_DATA_PATH, f"documents/{doc_id}.gz")).get("content")
+            doc = {"content": content, "search score": score}
+            doc.update(meta)
+            result.append(doc)
+    result.sort(key=lambda x: x["score"], reverse=True)
     return result[:n]
