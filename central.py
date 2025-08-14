@@ -28,6 +28,13 @@ def embed(content, task_type="retrieval_document"):
         return client.models.embed_content(model="gemini-embedding-exp-03-07", contents=content, config={"task_type": task_type}).embeddings[0].values
     except:
         return None
+def get(doc_id):
+    doc = {}
+    meta = m_data[doc_id]
+    content = load_gz(f"documents/{doc_id}.gz").get("content")
+    doc = {"id": doc_id, "content": content}
+    doc.update(meta)
+    return doc
 
 def init():
     global e_data, m_data
@@ -46,7 +53,7 @@ def add(content, meta={}):
     save_gz("embedding.gz", e_data)
     save_gz("meta.gz", m_data)
     return doc_id
-def delete(doc_id):
+def del(doc_id):
     global e_data, m_data
     doc_path = os.path.join(config.CENTRAL_DATA_PATH, f"documents/{doc_id}.gz")
     os.remove(doc_path)
@@ -68,9 +75,5 @@ def search(q, n=5, threshold=0):
     scores.sort(key=lambda x: x[1], reverse=True) # TODO: Optimize later
     res = []
     for entry in scores[:n]:
-        meta = m_data[entry[0]]
-        content = load_gz(f"documents/{entry[0]}.gz").get("content")
-        doc = {"id": entry[0], "content": content}
-        doc.update(meta)
-        res.append(doc)
+        res.append(get(entry[0]))
     return res
