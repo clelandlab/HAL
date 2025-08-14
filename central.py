@@ -69,8 +69,8 @@ def search(q, n=5, threshold=0):
     res = []
     for entry in scores[:n]:
         meta = m_data[entry[0]]
-        content = load_gz(os.path.join(config.CENTRAL_DATA_PATH, f"documents/{entry[0]}.gz")).get("content")
-        doc = {"content": content}
+        content = load_gz(f"documents/{entry[0]}.gz").get("content")
+        doc = {"id": entry[0], "content": content}
         doc.update(meta)
         res.append(doc)
     return res
