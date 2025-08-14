@@ -68,5 +68,5 @@ def search(q, n=5, threshold=0):
             doc = {"content": content, "search score": score}
             doc.update(meta)
             result.append(doc)
-    result.sort(key=lambda x: x["search score"], reverse=True)
+    result.sort(key=lambda x: x["search score"], reverse=True) # TODO: Optimize later
     return result[:n]
