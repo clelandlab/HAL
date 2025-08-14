@@ -4,6 +4,8 @@ from google import genai
 import config
 
 client = genai.Client(api_key=config.GEMINI_API_KEY)
+EMBEDDING_PATH = "_embedding.gz"
+META_PATH = "_meta.gz"
 e_data = None # embedding data
 m_data = None # meta data
 
@@ -31,38 +33,49 @@ def embed(content, task_type="retrieval_document"):
 
 def init():
     global e_data, m_data
-    e_data = load_gz("embedding.gz")
-    m_data = load_gz("meta.gz")
+    e_data = load_gz(EMBEDDING_PATH)
+    m_data = load_gz(META_PATH)
 init()
 
 # operations
 def add(content, meta={}):
     global e_data, m_data
     doc_id = sha256str(content)
-    save_gz(f"documents/{doc_id}.gz", {"content": content})
+    save_gz(f"{doc_id}.gz", {"content": content})
     meta["time"] = int(time.time())
     e_data[doc_id] = embed(content)
     m_data[doc_id] = meta
-    save_gz("embedding.gz", e_data)
-    save_gz("meta.gz", m_data)
+    save_gz(EMBEDDING_PATH, e_data)
+    save_gz(META_PATH, m_data)
     return doc_id
+def get(doc_id):
+    doc = {}
+    meta = m_data[doc_id]
+    content = load_gz(f"{doc_id}.gz").get("content")
+    doc = {"id": doc_id, "content": content}
+    doc.update(meta)
+    return doc
 def del(doc_id):
     global e_data, m_data
-    doc_path = os.path.join(config.CENTRAL_DATA_PATH, f"documents/{doc_id}.gz")
+    doc_path = os.path.join(config.CENTRAL_DATA_PATH, f"{doc_id}.gz")
     os.remove(doc_path)
     del e_data[doc_id]
     del m_data[doc_id]
-    save_gz("embedding.gz", e_data)
-    save_gz("meta.gz", m_data)
+    save_gz(EMBEDDING_PATH, e_data)
+    save_gz(META_PATH, m_data)
     return
 def search(q, n=5, threshold=0):
-    result = []
-    global e_data
+    scores = []
+    global e_data, m_data
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
     for doc_id, embedding in e_data.items():
         score = cos_sim(q_embedding, np.array(embedding))
-        if score >= threshold:
-            result.append((doc_id, score))
-    result.sort(key=lambda x: x[1], reverse=True)
-    return result[:n]
+        if score < threshold:
+            continue
+        scores.append((doc_id, score))
+    scores.sort(key=lambda x: x[1], reverse=True) # TODO: Optimize later
+    res = []
+    for entry in scores[:n]:
+        res.append(get(entry[0]))
+    return res
