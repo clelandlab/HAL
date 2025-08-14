@@ -56,17 +56,21 @@ def delete(doc_id):
     save_gz("meta.gz", m_data)
     return
 def search(q, n=5, threshold=0):
-    result = []
+    scores = []
     global e_data, m_data
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
     for doc_id, embedding in e_data.items():
         score = cos_sim(q_embedding, np.array(embedding))
-        if score >= threshold:
-            meta = m_data[doc_id]
-            content = load_gz(os.path.join(config.CENTRAL_DATA_PATH, f"documents/{doc_id}.gz")).get("content")
-            doc = {"content": content, "search score": score}
-            doc.update(meta)
-            result.append(doc)
-    result.sort(key=lambda x: x["search score"], reverse=True) # TODO: Optimize later
-    return result[:n]
+        if score < threshold:
+            continue
+        scores.append((doc_id, score))
+    scores.sort(key=lambda x: x[1], reverse=True) # TODO: Optimize later
+    res = []
+    for entry in scores[:n]:
+        meta = m_data[entry[0]]
+        content = load_gz(os.path.join(config.CENTRAL_DATA_PATH, f"documents/{entry[0]}.gz")).get("content")
+        doc = {"content": content}
+        doc.update(meta)
+        res.append(doc)
+    return res
