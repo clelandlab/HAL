@@ -1,25 +1,21 @@
-import time, os, json, gzip, hashlib
+import time, json, gzip, hashlib
 import numpy as np
 from google import genai
 import config
 
 client = genai.Client(api_key=config.GEMINI_API_KEY)
-EMBEDDING_PATH = "_embedding.gz"
-META_PATH = "_meta.gz"
-e_data = None # embedding data
-m_data = None # meta data
 
 # helper functions
 cos_sim = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-def load_gz(path):
-    with gzip.open(os.path.join(config.CENTRAL_DATA_PATH, path), 'rt') as f:
+def load_data():
+    with gzip.open(config.CENTRAL_DATA_PATH, 'rt') as f:
         try:
             data = json.load(f)
         except:
             data = {}
     return data
-def save_gz(path, data):
-    with gzip.open(os.path.join(config.CENTRAL_DATA_PATH, path), 'wt') as f:
+def save_data(data):
+    with gzip.open(config.CENTRAL_DATA_PATH, 'wt') as f:
         json.dump(data, f)
 def sha256str(s):
     h = hashlib.sha256()
@@ -32,45 +28,37 @@ def embed(content, task_type="retrieval_document"):
         return None
 
 def init():
-    global e_data, m_data
-    e_data = load_gz(EMBEDDING_PATH)
-    m_data = load_gz(META_PATH)
+    global data
+    data = load_data()
 init()
 
 # operations
 def add(content, meta={}):
-    global e_data, m_data
+    global data
     doc_id = sha256str(content)
-    save_gz(f"{doc_id}.gz", {"content": content})
+    data_dict = {"content": content, "embedding": embed(content)}
     meta["time"] = int(time.time())
-    e_data[doc_id] = embed(content)
-    m_data[doc_id] = meta
-    save_gz(EMBEDDING_PATH, e_data)
-    save_gz(META_PATH, m_data)
+    data_dict.update(meta)
+    data[doc_id] = data_dict
+    save_data(data)
     return doc_id
 def get(doc_id):
-    doc = {}
-    meta = m_data[doc_id]
-    content = load_gz(f"{doc_id}.gz").get("content")
-    doc = {"id": doc_id, "content": content}
-    doc.update(meta)
+    global data
+    doc = dict(data[doc_id])
+    doc.update({"id": doc_id})
     return doc
-def del(doc_id):
-    global e_data, m_data
-    doc_path = os.path.join(config.CENTRAL_DATA_PATH, f"{doc_id}.gz")
-    os.remove(doc_path)
-    del e_data[doc_id]
-    del m_data[doc_id]
-    save_gz(EMBEDDING_PATH, e_data)
-    save_gz(META_PATH, m_data)
+def delete(doc_id):
+    global data
+    del data[doc_id]
+    save_data(data)
     return
 def search(q, n=5, threshold=0):
     scores = []
-    global e_data, m_data
+    global data
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
-    for doc_id, embedding in e_data.items():
-        score = cos_sim(q_embedding, np.array(embedding))
+    for doc_id, data_dict in data.items():
+        score = cos_sim(q_embedding, np.array(data_dict['embedding']))
         if score < threshold:
             continue
         scores.append((doc_id, score))
