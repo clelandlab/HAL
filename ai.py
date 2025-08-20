@@ -19,8 +19,8 @@ def gen(client, query, docs):
             model="gemini-2.5-pro",
             config=types.GenerateContentConfig(
             system_instruction=prompt),
-            contents=text)
-        return res.text
+            contents=query)
+        return res.text, time.time()
     except genai.types.APIError as e:
         if e.status_code == 429:
             print("resource exhaustion; retrying after delay")
@@ -29,7 +29,7 @@ def gen(client, query, docs):
                 model="gemini-2.5-pro",
                 config=types.GenerateContentConfig(
                 system_instruction=prompt),
-                contents=text)
-            return res.text
+                contents=query)
+            return res.text, time.time()
         else:
             raise
