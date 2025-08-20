@@ -4,17 +4,19 @@ from google import genai
 import config
 
 client = genai.Client(api_key=config.GEMINI_API_KEY)
+data = {}
 
 # helper functions
 cos_sim = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 def load_data():
+    global data
     with gzip.open(config.CENTRAL_DATA_PATH, 'rt') as f:
         try:
             data = json.load(f)
         except:
             data = {}
     return data
-def save_data(data):
+def save_data():
     with gzip.open(config.CENTRAL_DATA_PATH, 'wt') as f:
         json.dump(data, f)
 def sha256str(s):
@@ -28,19 +30,17 @@ def embed(content, task_type="retrieval_document"):
         return None
 
 def init():
-    global data
-    data = load_data()
+    load_data()
 init()
 
 # operations
 def add(content, meta={}):
-    global data
     doc_id = sha256str(content)
     data_dict = {"content": content, "embedding": embed(content)}
     meta["time"] = int(time.time())
     data_dict.update(meta)
     data[doc_id] = data_dict
-    save_data(data)
+    save_data()
     return doc_id
 def get(doc_id):
     global data
@@ -48,13 +48,10 @@ def get(doc_id):
     doc.update({"id": doc_id})
     return doc
 def delete(doc_id):
-    global data
     del data[doc_id]
-    save_data(data)
-    return
+    save_data()
 def search(q, n=5, threshold=0):
     scores = []
-    global data
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
     for doc_id, data_dict in data.items():
