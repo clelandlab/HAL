@@ -2,24 +2,41 @@ from google import genai
 from google.genai import types
 import time
 
+# Function Declaration
+search_function = {
+    "name": "search",
+    "description": "Searches for additional information to answer the query.",
+    "parameters": {
+        
+    }
+}
 def check(client, query, docs):
     text = "-----\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
     system_instruction = """Given the following text documents, determine if there is enough information to solve the problem.
     If there is, set 'sufficient' to true.
     If not, set 'sufficient' to false, and recommend a specific keyword or query to search for the missing information in the 'search_query' field.
-    The output must be a JSON object with the following structure:
-    {
-        "sufficient": true | false
-        "search_query": "specific keyword or query to search"
-    }
     """
     contents = f"Problem: {query}\n\nDocuments:\n{text}"
     try:
         res = client.models.generate_content(
             model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            thinking_config=types.ThinkingConfig(thinking_budget=0)), # Turn off thinking
+                system_instruction=system_instruction,
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+                response_mime_type="application/json",
+                response_schema=genai.types.Schema(
+                    type = genai.types.Type.OBJECT,
+                    required = ["sufficient", "search_query"],
+                    properties = {
+                        "sufficient": genai.types.Schema(
+                            type = genai.types.Type.BOOLEAN,
+                        ),
+                        "search_query": genai.types.Schema(
+                            type = genai.types.Type.STRING,
+                        ),
+                    },
+                )
+            ),
             contents=contents)
         return res.text
     except genai.types.APIError as e:
