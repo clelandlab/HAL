@@ -35,10 +35,25 @@ def check(client, query, docs):
             print("resource exhaustion; retrying after delay")
             time.sleep(5)
             res = client.models.generate_content(
-                model="gemini-2.5-flash",
-                config=types.GenerateContentConfig(
-                system_instruction=system_instruction),
-                contents=contents)
+            model="gemini-2.5-flash",
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+                response_mime_type="application/json",
+                response_schema=genai.types.Schema(
+                    type = genai.types.Type.OBJECT,
+                    required = ["keywords"],
+                    properties = {
+                        "keywords": genai.types.Schema(
+                            type = genai.types.Type.ARRAY,
+                            items = genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                            ),
+                        ),
+                    },
+                )
+            ),
+            contents=contents)
             return res.text
         else:
             raise
