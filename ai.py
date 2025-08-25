@@ -13,8 +13,7 @@ search_function = {
 def check(client, query, docs):
     text = "-----\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
     system_instruction = """Given the following text documents, determine if there is enough information to solve the problem.
-    If there is, set 'sufficient' to true.
-    If not, set 'sufficient' to false, and recommend a specific keyword or query to search for the missing information in the 'search_query' field.
+    If not, recommend specific keyword(s) to search for the missing information in the 'keywords' field.
     """
     contents = f"Problem: {query}\n\nDocuments:\n{text}"
     try:
@@ -26,13 +25,13 @@ def check(client, query, docs):
                 response_mime_type="application/json",
                 response_schema=genai.types.Schema(
                     type = genai.types.Type.OBJECT,
-                    required = ["sufficient", "search_query"],
+                    required = ["keywords"],
                     properties = {
-                        "sufficient": genai.types.Schema(
-                            type = genai.types.Type.BOOLEAN,
-                        ),
-                        "search_query": genai.types.Schema(
-                            type = genai.types.Type.STRING,
+                        "keywords": genai.types.Schema(
+                            type = genai.types.Type.ARRAY,
+                            items = genai.types.Schema(
+                                type = genai.types.Type.STRING,
+                            ),
                         ),
                     },
                 )
