@@ -2,14 +2,6 @@ from google import genai
 from google.genai import types
 import time
 
-# Function Declaration
-search_function = {
-    "name": "search",
-    "description": "Searches for additional information to answer the query.",
-    "parameters": {
-        
-    }
-}
 def check(client, query, docs):
     text = "-----\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
     system_instruction = """Given the following text documents, determine if there is enough information to solve the problem.
