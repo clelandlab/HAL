@@ -28,8 +28,8 @@ def gather_document(client, query, docs=[]):
             else:
                 docs.append(d)
                 docs_added.append(d['id'])
-            res = f"Added docs: {', '.join(docs_added)}" if docs_added else "no new docs added"
-            return {"Result": res}
+        res = f"Added docs: {', '.join(docs_added)}" if docs_added else "no new docs added"
+        return {"Result": res}
     while True:
         text = "-----\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
         system_instruction = """Given the following text documents, determine if there is enough information to solve the problem.
