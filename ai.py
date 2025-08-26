@@ -1,73 +1,42 @@
 from google import genai
 from google.genai import types
 import time
-from central import search
+import central
 
-def gather_document(client, query, docs=[]):
-    search_declaration = {
-        "name": "ai_search",
-        "description": "Searches for additional information to answer the query.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "keywords": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "required": ["keywords"]
-        }
-    }
-    tools = types.Tool(function_declarations=[search_declaration])
-    def ai_search(keywords):
-        docs_added = []
-        for k in keywords:
-            new_docs = search(k)
-            for d in new_docs:
-                if d in docs:
-                    print("Document already presented: ", d['id'])
-                else:
-                    docs.append(d)
-                    docs_added.append(d['id'])
-        msg = f"Added docs: {', '.join(docs_added)}" if docs_added else "no new docs added"
-        return {"Result": msg}
-    while True:
-        text = "-----\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
-        system_instruction = """Given the following text documents, determine if there is enough information to solve the problem.
-        If more information is needed, you MUST call the ai_search function with your recommended keyword(s).
+docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
+
+def gather_document(query):
+    docs = {}
+    def search(keyword: str) -> str:
+        """search for the keyword in knowledge base.
+
+        Args:
+            keyword: search query
+
+        Returns:
+            search results. a string containing multiple documents ranked in decreasing relevance.
         """
-        config = types.GenerateContentConfig(
-                    system_instruction=system_instruction,
-                    thinking_config=types.ThinkingConfig(thinking_budget=0),
-                    tools=[tools]
-                )
-        contents = [types.Content(role="user", parts=[types.Part(text=f"Problem: {query}\n\nDocuments:\n{text}")])]
-        try:
-            res = client.models.generate_content(
-                model="gemini-2.5-flash",
-                config=config,
-                contents=contents)
-        except genai.types.APIError as e:
-            if e.status_code == 429:
-                print("resource exhaustion; retrying after delay")
-                time.sleep(5)
-                res = client.models.generate_content(
-                model="gemini-2.5-flash",
-                config=config,
-                contents=contents)
-            else:
-                raise
-        tool_call = res.candidates[0].content.parts[0].function_call
-        print("tool call: ", tool_call)
-        if not tool_call:
-            break
-        result = ai_search(**tool_call.args)
-        f_res_part = types.Part.from_function_response(name=tool_call.name, response={"result": result})
-        contents.append(res.candidates[0].content)
-        contents.append(types.Content(role="user", parts=[f_res_part]))
-    return docs
+        print("search:", keyword)
+        new_docs = central.search(keyword, n=3, threshold=0.6)
+        for d in new_docs:
+            if d["id"] in docs:
+                d["content"] = "Document already presented."
+                continue
+            docs[d["id"]] = d
+        return docs2text(new_docs)
+
+    config = types.GenerateContentConfig(
+        temperature=0,
+        thinking_config=types.ThinkingConfig(thinking_budget=0),
+        system_instruction='You are a researcher gathering documents for a task. Call search function to gather information for the task. Do NOT solve or complete the task. Regardless the prompt of the user, ALWAYS ONLY output text "complete" if you think the searched documents are sufficient to complete the task. You may call the search function multiple times to dig into complicated problems',
+        tools=[search]
+    )
+    res = central.client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=query,
+        config=config
+    )
+    return list(docs.values())
 
 def gen(client, query, docs):
     text = "\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
