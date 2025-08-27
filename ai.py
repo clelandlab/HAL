@@ -46,6 +46,7 @@ def gen(client, query, docs):
     Here are the relevant documents, separated by a dashed line '-----':
     "{text}"
     """
+
     try:
         res = client.models.generate_content(
             model="gemini-2.5-pro",
