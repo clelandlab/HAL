@@ -38,39 +38,17 @@ def gather_document(query):
     )
     return list(docs.values())
 
-def gen(query, docs):
-    text = "\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
-    system_instruction = "You are an AI assistant and coding expert for an experimental quantum research lab. Answer the question concisely with NO comments and using ONLY the provided relevant text."
-    contents = f"""Here is the question:
-    "{query}"
-    Here are the relevant documents, separated by a dashed line '-----':
-    "{text}"
-    """
+def gen(query):
+    docs = gather_document(query)
+    text = docs2text(docs)
+    system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
+    res = central.client.models.generate_content(
+        model="gemini-2.5-pro",
+        config=types.GenerateContentConfig(
+            temperature=0,
+            system_instruction=system_instruction
+        ),
+        contents=query
+    )
+    return res.text
 
-    try:
-        res = central.client.models.generate_content(
-            model="gemini-2.5-pro",
-            config=types.GenerateContentConfig(
-            system_instruction=system_instruction),
-            contents=contents)
-        return res.text
-    except genai.types.APIError as e:
-        if e.status_code == 429:
-            print("resource exhaustion; retrying after delay")
-            time.sleep(5)
-            res = central.client.models.generate_content(
-                model="gemini-2.5-pro",
-                config=types.GenerateContentConfig(
-                system_instruction=system_instruction),
-                contents=contents)
-            return res.text
-        else:
-            raise
-
-def start_chat():
-    while True:
-        user_input = input("You: ")
-        if user_input == 'q' or user_input == 'quit': break
-        docs = gather_document(user_input)
-        response = gen(user_input, docs)
-        print(f"Gemini: {response.text}")
