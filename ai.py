@@ -38,7 +38,7 @@ def gather_document(query):
     )
     return list(docs.values())
 
-def gen(client, query, docs):
+def gen(query, docs):
     text = "\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
     system_instruction = "You are an AI assistant and coding expert for an experimental quantum research lab. Answer the question concisely with NO comments and using ONLY the provided relevant text."
     contents = f"""Here is the question:
@@ -48,7 +48,7 @@ def gen(client, query, docs):
     """
 
     try:
-        res = client.models.generate_content(
+        res = central.client.models.generate_content(
             model="gemini-2.5-pro",
             config=types.GenerateContentConfig(
             system_instruction=system_instruction),
@@ -58,7 +58,7 @@ def gen(client, query, docs):
         if e.status_code == 429:
             print("resource exhaustion; retrying after delay")
             time.sleep(5)
-            res = client.models.generate_content(
+            res = central.client.models.generate_content(
                 model="gemini-2.5-pro",
                 config=types.GenerateContentConfig(
                 system_instruction=system_instruction),
@@ -66,3 +66,11 @@ def gen(client, query, docs):
             return res.text
         else:
             raise
+
+def start_chat():
+    while True:
+        user_input = input("You: ")
+        if user_input == 'q' or user_input == 'quit': break
+        docs = gather_document(user_input)
+        response = gen(user_input, docs)
+        print(f"Gemini: {response.text}")
