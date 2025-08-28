@@ -16,13 +16,13 @@ def gather_document(query):
         Returns:
             search results. a string containing multiple documents ranked in decreasing relevance.
         """
-        print("search:", keyword)
-        new_docs = central.search(keyword, n=3, threshold=0.6)
+        new_docs, scores = central.search(keyword, n=3, threshold=0.6)
         for d in new_docs:
             if d["id"] in docs:
                 d["content"] = "Document already presented."
                 continue
             docs[d["id"]] = d
+        print("search:", keyword, "->", scores)
         return docs2text(new_docs)
 
     config = types.GenerateContentConfig(

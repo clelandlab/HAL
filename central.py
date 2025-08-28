@@ -60,7 +60,8 @@ def search(q, n=5, threshold=0):
             continue
         scores.append((doc_id, score))
     scores.sort(key=lambda x: x[1], reverse=True) # TODO: Optimize later
-    res = []
+    res = [], score_res = []
     for entry in scores[:n]:
         res.append(get(entry[0]))
-    return res
+        score_res.append(entry[1])
+    return res, score_res

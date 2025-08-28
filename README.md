@@ -15,8 +15,8 @@ CENTRAL_DATA_PATH = "/path/to/the/central/data.gz"
 ## Central
 
 ```python
-central.add(content, meta={})
-central.get(doc_id)
+id = central.add(content, meta={})
+doc = central.get(doc_id)
 central.delete(doc_id)
-central.search(q, n=5, threshold=0)
+docs, scores = central.search(q, n=5, threshold=0)
 ```
