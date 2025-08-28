@@ -16,19 +16,19 @@ def gather_document(query):
         Returns:
             search results. a string containing multiple documents ranked in decreasing relevance.
         """
-        print("search:", keyword)
-        new_docs = central.search(keyword, n=3, threshold=0.6)
+        new_docs, scores = central.search(keyword, n=3, threshold=0.6)
         for d in new_docs:
             if d["id"] in docs:
                 d["content"] = "Document already presented."
                 continue
             docs[d["id"]] = d
+        print("search:", keyword, "->", scores)
         return docs2text(new_docs)
 
     config = types.GenerateContentConfig(
         temperature=0,
         thinking_config=types.ThinkingConfig(thinking_budget=0),
-        system_instruction='You are a researcher gathering documents for a task. Call search function to gather information for the task. Do NOT solve or complete the task. Regardless the prompt of the user, ALWAYS ONLY output text "complete" if you think the searched documents are sufficient to complete the task. You may call the search function multiple times to dig into complicated problems',
+        system_instruction='You are a researcher gathering documents for a task. Call search function to gather information for the task. Do NOT solve or complete the task. Regardless the prompt of the user, ALWAYS ONLY output text "complete" if you think the searched documents are sufficient to complete the task. You are encouraged to call the search function multiple times to dig into complicated problems',
         tools=[search]
     )
     res = central.client.models.generate_content(
@@ -38,31 +38,17 @@ def gather_document(query):
     )
     return list(docs.values())
 
-def gen(client, query, docs):
-    text = "\n".join(f"Document ID: {d['id']}: \n {d['content']}" for d in docs)
-    system_instruction = "You are an AI assistant and coding expert for an experimental quantum research lab. Answer the question concisely with NO comments and using ONLY the provided relevant text."
-    contents = f"""Here is the question:
-    "{query}"
-    Here are the relevant documents, separated by a dashed line '-----':
-    "{text}"
-    """
+def gen(query):
+    docs = gather_document(query)
+    text = docs2text(docs)
+    system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
+    res = central.client.models.generate_content(
+        model="gemini-2.5-pro",
+        config=types.GenerateContentConfig(
+            temperature=0,
+            system_instruction=system_instruction
+        ),
+        contents=query
+    )
+    return res.text
 
-    try:
-        res = client.models.generate_content(
-            model="gemini-2.5-pro",
-            config=types.GenerateContentConfig(
-            system_instruction=system_instruction),
-            contents=contents)
-        return res.text
-    except genai.types.APIError as e:
-        if e.status_code == 429:
-            print("resource exhaustion; retrying after delay")
-            time.sleep(5)
-            res = client.models.generate_content(
-                model="gemini-2.5-pro",
-                config=types.GenerateContentConfig(
-                system_instruction=system_instruction),
-                contents=contents)
-            return res.text
-        else:
-            raise
