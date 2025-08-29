@@ -1,7 +1,7 @@
 from google import genai
 from google.genai import types
 import time
-import central
+import memory
 
 docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
 
@@ -16,7 +16,7 @@ def gather_document(query):
         Returns:
             search results. a string containing multiple documents ranked in decreasing relevance.
         """
-        new_docs, scores = central.search(keyword, n=3, threshold=0.6)
+        new_docs, scores = memory.search(keyword, n=3, threshold=0.6)
         for d in new_docs:
             if d["id"] in docs:
                 d["content"] = "Document already presented."
@@ -31,7 +31,7 @@ def gather_document(query):
         system_instruction='You are a researcher gathering documents for a task. Call search function to gather information for the task. Do NOT solve or complete the task. Regardless the prompt of the user, ALWAYS ONLY output text "complete" if you think the searched documents are sufficient to complete the task. You are encouraged to call the search function multiple times to dig into complicated problems',
         tools=[search]
     )
-    res = central.client.models.generate_content(
+    res = memory.client.models.generate_content(
         model="gemini-2.5-flash",
         contents=query,
         config=config
@@ -42,7 +42,7 @@ def gen(query):
     docs = gather_document(query)
     text = docs2text(docs)
     system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
-    res = central.client.models.generate_content(
+    res = memory.client.models.generate_content(
         model="gemini-2.5-pro",
         config=types.GenerateContentConfig(
             temperature=0,

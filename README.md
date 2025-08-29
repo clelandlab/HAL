@@ -1,6 +1,4 @@
-# skynet
-
-A real skynet...
+# HAL
 
 ## Config
 
@@ -9,14 +7,14 @@ Create a `config.py` with the following content:
 ```python
 GEMINI_API_KEY = "your gemini API key"
 
-CENTRAL_DATA_PATH = "/path/to/the/central/data.gz"
+MEMORY_DATA_PATH = "/path/to/the/memory/data.gz"
 ```
 
-## Central
+## Memory
 
 ```python
-id = central.add(content, meta={})
-doc = central.get(doc_id)
-central.delete(doc_id)
-docs, scores = central.search(q, n=5, threshold=0)
+id = memory.add(content, meta={})
+doc = memory.get(doc_id)
+memory.delete(doc_id)
+docs, scores = memory.search(q, n=5, threshold=0)
 ```
