@@ -10,14 +10,14 @@ data = {}
 cos_sim = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 def load_data():
     global data
-    with gzip.open(config.CENTRAL_DATA_PATH, 'rt') as f:
+    with gzip.open(config.MEMORY_DATA_PATH, 'rt') as f:
         try:
             data = json.load(f)
         except:
             data = {}
     return data
 def save_data():
-    with gzip.open(config.CENTRAL_DATA_PATH, 'wt') as f:
+    with gzip.open(config.MEMORY_DATA_PATH, 'wt') as f:
         json.dump(data, f)
 def sha256str(s):
     h = hashlib.sha256()
