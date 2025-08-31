@@ -14,7 +14,7 @@ def gather_document(query, silent=False):
             keyword: search query
 
         Returns:
-            search results. a string containing multiple documents ranked in decreasing relevance.
+            Top 3 search results. a string containing at most three documents ranked in decreasing relevance.
         """
         new_docs, scores = memory.search(keyword, n=3, threshold=0.6)
         for d in new_docs:
