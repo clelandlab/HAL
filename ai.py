@@ -5,7 +5,7 @@ import memory
 
 docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
 
-def gather_document(query):
+def gather_document(query, silent=False):
     docs = {}
     def search(keyword: str) -> str:
         """search for the keyword in knowledge base.
@@ -22,9 +22,12 @@ def gather_document(query):
                 d["content"] = "Document already presented."
                 continue
             docs[d["id"]] = d
-        print("search:", keyword, "->", scores)
+        if not silent:
+            print("  > search:", keyword, "->", scores)
         return docs2text(new_docs)
 
+    if not silent:
+        print("Gathering documents...")
     config = types.GenerateContentConfig(
         temperature=0,
         thinking_config=types.ThinkingConfig(thinking_budget=0),
@@ -38,10 +41,12 @@ def gather_document(query):
     )
     return list(docs.values())
 
-def gen(query):
-    docs = gather_document(query)
+def gen(query, silent=False):
+    docs = gather_document(query, silent=silent)
     text = docs2text(docs)
     system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
+    if not silent:
+        print("Generating...")
     res = memory.client.models.generate_content(
         model="gemini-2.5-pro",
         config=types.GenerateContentConfig(
