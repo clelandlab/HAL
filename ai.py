@@ -23,11 +23,12 @@ def gather_document(query, silent=False):
                 continue
             docs[d["id"]] = d
         if not silent:
-            print("  > search:", keyword, "->", scores)
+            formatted_list = [f"{item:.3f}" for item in scores]
+            print("  > search:", keyword, "->", formatted_list)
         return docs2text(new_docs)
 
     if not silent:
-        print("Gathering documents...")
+        print("[HAL] Gathering documents...")
     config = types.GenerateContentConfig(
         temperature=0,
         thinking_config=types.ThinkingConfig(thinking_budget=0),
@@ -46,7 +47,7 @@ def gen(query, silent=False):
     text = docs2text(docs)
     system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
     if not silent:
-        print("Generating...")
+        print("[HAL] Thinking...")
     res = memory.client.models.generate_content(
         model="gemini-2.5-pro",
         config=types.GenerateContentConfig(
