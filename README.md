@@ -10,11 +10,15 @@ GEMINI_API_KEY = "your gemini API key"
 MEMORY_DATA_PATH = "/path/to/the/memory/data.gz"
 ```
 
-## Memory
+## API
+
+### Memory
 
 ```python
 id = memory.add(content, meta={})
 doc = memory.get(doc_id)
 memory.delete(doc_id)
 docs, scores = memory.search(q, n=5, threshold=0)
+memory.load()
+memory.save()
 ```

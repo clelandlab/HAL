@@ -17,12 +17,12 @@ def _search(*args, **kwargs):
     res, scores = memory.search(*args, **kwargs)
     r = ""
     for doc, score in zip(res, scores):
-        r += f"### `{doc["id"]}`\n- **Score**: {score}\n"
+        r += f"### `{doc["id"]}`\n- **score**: {score}\n"
         for k, v in doc.items():
             if k in ["id", "content", "embedding"]:
                 continue
             r += f"- **{k}**: {v}\n"
-        r += f"\n\n---\n\n{doc['content']}\n\n"
+        r += f"\n\n---\n\n{doc['content']}\n\n\n"
     return _show(r)
 HAL.search = _search
 

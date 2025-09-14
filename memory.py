@@ -13,7 +13,7 @@ data = {}
 
 # helper functions
 cos_sim = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-def load_data():
+def load():
     global data
     with gzip.open(config.MEMORY_DATA_PATH, 'rt') as f:
         try:
@@ -21,7 +21,7 @@ def load_data():
         except:
             data = {}
     return data
-def save_data():
+def save():
     with gzip.open(config.MEMORY_DATA_PATH, 'wt') as f:
         json.dump(data, f)
 def sha256str(s):
@@ -35,7 +35,7 @@ def embed(content, task_type="retrieval_document"):
         return None
 
 def init():
-    load_data()
+    load()
 init()
 
 # operations
@@ -45,7 +45,7 @@ def add(content, meta={}):
     meta["time"] = int(time.time())
     data_dict.update(meta)
     data[doc_id] = data_dict
-    save_data()
+    save()
     return doc_id
 def get(doc_id):
     global data
@@ -54,7 +54,7 @@ def get(doc_id):
     return doc
 def delete(doc_id):
     del data[doc_id]
-    save_data()
+    save()
 def search(q, n=5, threshold=0):
     scores = []
     score = 0
