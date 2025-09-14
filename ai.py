@@ -42,7 +42,7 @@ def gather_document(query, silent=False):
     )
     return list(docs.values())
 
-def gen(query, silent=False):
+def question(query, silent=False):
     docs = gather_document(query, silent=silent)
     text = docs2text(docs)
     system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
