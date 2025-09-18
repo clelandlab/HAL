@@ -9,6 +9,8 @@ def HAL(query, t=""):
     docs = ai.gather_document(query, silent=HAL.silent)
     if t == "code":
         HAL.exec_code = ai.code(query, docs, exec_import=HAL.exec_import, silent=HAL.silent)
+        if HAL.auto_exec:
+            HAL.exec()
         return _show(f"```python\n{HAL.exec_import}\n```\n\n```python\n{HAL.exec_code}\n```")
     res = ai.question(query, docs, silent=HAL.silent)
     return _show(res)
@@ -30,10 +32,11 @@ def _search(*args, **kwargs):
     return _show(r)
 HAL.search = _search
 
-HAL.exec_import = """import quick, skynet, time, os, sys, json
+HAL.exec_import = """import quick, skynet, time, os, sys, json, yaml
 import numpy as np
 import matplotlib.pyplot as plt"""
 HAL.exec_code = ""
+HAL.auto_exec = False
 HAL.exec = lambda: execution._exec(HAL.exec_import + "\n\n" + HAL.exec_code)
 
 sys.modules[__name__] = HAL
