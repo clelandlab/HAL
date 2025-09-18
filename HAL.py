@@ -1,12 +1,16 @@
-import sys, ai, memory
+import sys, ai, memory, execution
 from IPython.display import display, Markdown
 
 _show = lambda x: display(Markdown(x))
 
-def HAL(query):
+def HAL(query, t=""):
     if "open the pod bay doors" in query.casefold():
         return show("I'm sorry, Dave. I'm afraid I can't do that.")
-    res = ai.question(query, silent=HAL.silent)
+    docs = ai.gather_document(query, silent=HAL.silent)
+    if t == "code":
+        HAL.exec_code = ai.code(query, docs, exec_import=HAL.exec_import, silent=HAL.silent)
+        return _show(f"```python\n{HAL.exec_import}\n```\n\n```python\n{HAL.exec_code}\n```")
+    res = ai.question(query, docs, silent=HAL.silent)
     return _show(res)
 
 HAL.memory = memory
@@ -25,5 +29,11 @@ def _search(*args, **kwargs):
         r += f"\n\n---\n\n{doc['content']}\n\n\n"
     return _show(r)
 HAL.search = _search
+
+HAL.exec_import = """import quick, skynet, time, os, sys, json
+import numpy as np
+import matplotlib.pyplot as plt"""
+HAL.exec_code = ""
+HAL.exec = lambda: execution._exec(HAL.exec_import + "\n\n" + HAL.exec_code)
 
 sys.modules[__name__] = HAL

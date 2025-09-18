@@ -3,11 +3,6 @@ import numpy as np
 from google import genai
 import config
 
-new_session = {
-    "docs": {}
-}
-session = dict(new_session)
-
 client = genai.Client(api_key=config.GEMINI_API_KEY)
 data = {}
 

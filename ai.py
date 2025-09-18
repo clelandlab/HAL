@@ -1,6 +1,6 @@
 from google import genai
 from google.genai import types
-import time
+import time, json
 import memory
 
 docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
@@ -42,8 +42,7 @@ def gather_document(query, silent=False):
     )
     return list(docs.values())
 
-def question(query, silent=False):
-    docs = gather_document(query, silent=silent)
+def question(query, docs=[], silent=False):
     text = docs2text(docs)
     system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
     if not silent:
@@ -58,3 +57,19 @@ def question(query, silent=False):
     )
     return res.text
 
+def code(query, docs=[], exec_import="", silent=False):
+    text = docs2text(docs)
+    system_instruction = f"You are a world class programming AI that generates Python code based on user requirements. Write the code using ONLY the following documents:\n\n\n{text}\n\n\nThe code should be self-contained and runnable. Do NOT include any side behaviors like printing messages. Absolutely do NOT include any comments or explanations. The following packages are already imported (do NOT import them again!):\n{exec_import}"
+    if not silent:
+        print("[HAL] Coding...")
+    res = memory.client.models.generate_content(
+        model="gemini-2.5-pro",
+        config=types.GenerateContentConfig(
+            temperature=0,
+            response_mime_type="application/json",
+            response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={ "code": types.Schema(type=genai.types.Type.STRING) }),
+            system_instruction=system_instruction
+        ),
+        contents=query
+    )
+    return json.loads(res.text)["code"]
