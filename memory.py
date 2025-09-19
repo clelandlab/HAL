@@ -40,7 +40,6 @@ def add(content, meta={}):
     meta["time"] = int(time.time())
     data_dict.update(meta)
     data[doc_id] = data_dict
-    save()
     return doc_id
 def get(doc_id):
     global data
@@ -49,7 +48,6 @@ def get(doc_id):
     return doc
 def delete(doc_id):
     del data[doc_id]
-    save()
 def search(q, n=5, threshold=0):
     scores = []
     score = 0
