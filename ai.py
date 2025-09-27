@@ -23,7 +23,7 @@ def gather_document(query, silent=False):
                 continue
             docs[d["id"]] = d
         if not silent:
-            formatted_list = [f"{item:.3f}" for item in scores]
+            formatted_list = [float(f"{item:.3f}") for item in scores]
             print("  > search:", keyword, "->", formatted_list)
         return docs2text(new_docs)
 
