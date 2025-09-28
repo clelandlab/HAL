@@ -5,7 +5,7 @@ _show = lambda x: display(Markdown(x))
 
 def HAL(query, t=""):
     if "open the pod bay doors" in query.casefold():
-        return show("I'm sorry, Dave. I'm afraid I can't do that.")
+        return _show("I'm sorry, Dave. I'm afraid I can't do that.")
     docs = ai.gather_document(query, silent=HAL.silent)
     res = ai.question(query, docs, silent=HAL.silent)
     return _show(res)
