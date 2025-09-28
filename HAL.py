@@ -6,8 +6,11 @@ _show = lambda x: display(Markdown(x))
 def HAL(query, t=""):
     if "open the pod bay doors" in query.casefold():
         return _show("I'm sorry, Dave. I'm afraid I can't do that.")
+    original_cost = memory.session.get("cost", 0)
     docs = ai.gather_document(query, silent=HAL.silent)
     res = ai.question(query, docs, silent=HAL.silent)
+    if not HAL.silent:
+        print(f"[HAL] Cost: ${memory.session.get('cost', 0) - original_cost : .5f}. (Total: {memory.session.get('cost', 0) : .5f})\n")
     return _show(res)
 
 HAL.memory = memory
@@ -15,9 +18,10 @@ HAL.ai = ai
 HAL.silent = False
 
 def _search(*args, **kwargs):
-    res, scores = memory.search(*args, **kwargs)
+    res = memory.search(*args, **kwargs)
     r = ""
-    for doc, score in zip(res, scores):
+    for id, score in res:
+        doc = memory.get(id)
         r += f"### `{doc["id"]}`\n- **score**: {score}\n"
         for k, v in doc.items():
             if k in ["id", "content", "embedding"]:

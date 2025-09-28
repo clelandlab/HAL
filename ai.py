@@ -2,6 +2,7 @@ from google import genai
 from google.genai import types
 import time, json
 import memory
+from cost import add_cost
 
 docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
 
@@ -16,14 +17,17 @@ def gather_document(query, silent=False):
         Returns:
             Top 3 search results. a string containing at most three documents ranked in decreasing relevance.
         """
-        new_docs, scores = memory.search(keyword, n=3, threshold=0.6)
-        for d in new_docs:
+        res = memory.search(keyword)
+        new_docs = []
+        for id, score in res:
+            d = memory.get(id)
             if d["id"] in docs:
                 d["content"] = "Document already presented."
                 continue
             docs[d["id"]] = d
+            new_docs.append(d)
         if not silent:
-            formatted_list = [float(f"{item:.3f}") for item in scores]
+            formatted_list = [float(f"{score:.3f}") for id, score in res]
             print("  > search:", keyword, "->", formatted_list)
         return docs2text(new_docs)
 
@@ -40,6 +44,7 @@ def gather_document(query, silent=False):
         contents=query,
         config=config
     )
+    add_cost(res)
     return list(docs.values())
 
 def question(query, docs=[], silent=False):
@@ -55,6 +60,7 @@ def question(query, docs=[], silent=False):
         ),
         contents=query
     )
+    add_cost(res)
     return res.text
 
 def code(query, docs=[], exec_import="", silent=False):
@@ -72,4 +78,5 @@ def code(query, docs=[], exec_import="", silent=False):
         ),
         contents=query
     )
+    add_cost(res)
     return json.loads(res.text)["code"]

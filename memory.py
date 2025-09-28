@@ -2,6 +2,11 @@ import time, json, gzip, hashlib
 import numpy as np
 from google import genai
 import config
+from cost import add_cost
+
+session = {
+    "cost": 0.0
+}
 
 client = genai.Client(api_key=config.GEMINI_API_KEY)
 data = {}
@@ -25,7 +30,7 @@ def sha256str(s):
     return h.hexdigest()
 def embed(content, task_type="retrieval_document"):
     try:
-        return client.models.embed_content(model="gemini-embedding-exp-03-07", contents=content, config={"task_type": task_type}).embeddings[0].values
+        return client.models.embed_content(model="gemini-embedding-001", contents=content, config={"task_type": task_type}).embeddings[0].values
     except:
         return None
 
@@ -48,7 +53,9 @@ def get(doc_id):
     return doc
 def delete(doc_id):
     del data[doc_id]
-def search(q, n=5, threshold=0):
+
+# return a list of (doc_id, score)
+def search(q, maxn=5, cutoff_gradient=0.03, threshold=0.6):
     scores = []
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
@@ -57,10 +64,8 @@ def search(q, n=5, threshold=0):
         if score < threshold:
             continue
         scores.append((doc_id, score))
-    scores.sort(key=lambda x: x[1], reverse=True) # TODO: Optimize later
-    res = []
-    score_res = []
-    for entry in scores[:n]:
-        res.append(get(entry[0]))
-        score_res.append(float(entry[1]))
-    return res, score_res
+    scores.sort(key=lambda x: x[1], reverse=True)
+    for i in range(maxn):
+        if scores[i][1] - scores[i+1][1] >= cutoff_gradient:
+            return scores[:(i+1)]
+    return scores[:maxn]
