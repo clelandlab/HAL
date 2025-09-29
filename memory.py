@@ -2,7 +2,7 @@ import time, json, gzip, hashlib
 import numpy as np
 from google import genai
 import config
-from cost import add_cost
+from cost import add_embedding_cost
 
 session = {
     "cost": 0.0
@@ -30,7 +30,9 @@ def sha256str(s):
     return h.hexdigest()
 def embed(content, task_type="retrieval_document"):
     try:
-        return client.models.embed_content(model="gemini-embedding-001", contents=content, config={"task_type": task_type}).embeddings[0].values
+        model = "gemini-embedding-001"
+        add_embedding_cost(client.models.count_tokens(model=model, contents=content))
+        return client.models.embed_content(model=model, contents=content, config={"task_type": task_type}).embeddings[0].values
     except:
         return None
 

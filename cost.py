@@ -1,12 +1,17 @@
 import memory
 
-# embedding are not counted.
 prices = {
+    "gemini-embedding-001": 0.15/1e6,
     "gemini-2.5-pro": (1.25/1e6, 10/1e6),
     "gemini-2.5-flash": (0.3/1e6, 2.5/1e6),
 }
 
-def add_cost(res):
+def add_embedding_cost(res):
+    total_cost = res.total_tokens * prices["gemini-embedding-001"]
+    memory.session["cost"] += total_cost
+    return total_cost
+
+def add_generative_cost(res):
     v = res.model_version
     u = res.usage_metadata
     p = prices.get(v, (0, 0))

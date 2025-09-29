@@ -2,7 +2,7 @@ from google import genai
 from google.genai import types
 import time, json
 import memory
-from cost import add_cost
+from cost import add_generative_cost, add_embedding_cost
 
 docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
 
@@ -15,7 +15,7 @@ def gather_document(query, silent=False):
             keyword: search query
 
         Returns:
-            Top 3 search results. a string containing at most three documents ranked in decreasing relevance.
+            Top search results. a string containing at most 5 documents ranked in decreasing relevance.
         """
         res = memory.search(keyword)
         new_docs = []
@@ -44,7 +44,7 @@ def gather_document(query, silent=False):
         contents=query,
         config=config
     )
-    add_cost(res)
+    add_generative_cost(res)
     return list(docs.values())
 
 def question(query, docs=[], silent=False):
@@ -60,7 +60,7 @@ def question(query, docs=[], silent=False):
         ),
         contents=query
     )
-    add_cost(res)
+    add_generative_cost(res)
     return res.text
 
 def code(query, docs=[], exec_import="", silent=False):
@@ -78,5 +78,5 @@ def code(query, docs=[], exec_import="", silent=False):
         ),
         contents=query
     )
-    add_cost(res)
+    add_generative_cost(res)
     return json.loads(res.text)["code"]
