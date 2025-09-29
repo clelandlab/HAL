@@ -10,7 +10,7 @@ def HAL(query, t=""):
     docs = ai.gather_document(query, silent=HAL.silent)
     res = ai.question(query, docs, silent=HAL.silent)
     if not HAL.silent:
-        print(f"[HAL] Cost: ${memory.session.get('cost', 0) - original_cost : .5f}. (Total: {memory.session.get('cost', 0) : .5f})\n")
+        print(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Total: {memory.session.get('cost', 0):.5f})\n")
     return _show(res)
 
 HAL.memory = memory
