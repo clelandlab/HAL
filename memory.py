@@ -57,7 +57,7 @@ def delete(doc_id):
     del data[doc_id]
 
 # return a list of (doc_id, score)
-def search(q, maxn=5, cutoff_gradient=0.03, threshold=0.6):
+def search(q, maxn=5, cutoff_gradient=0.028, threshold=0.6):
     scores = []
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
@@ -67,7 +67,7 @@ def search(q, maxn=5, cutoff_gradient=0.03, threshold=0.6):
             continue
         scores.append((doc_id, score))
     scores.sort(key=lambda x: x[1], reverse=True)
-    for i in range(maxn):
+    for i in range(min(maxn, len(scores) - 1)):
         if scores[i][1] - scores[i+1][1] >= cutoff_gradient:
             return scores[:(i+1)]
     return scores[:maxn]
