@@ -1,7 +1,7 @@
 import sys, ai, memory, execution
 from IPython.display import display, Markdown
 
-_show = lambda x: display(Markdown(x))
+_show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
 
 def HAL(query, t=""):
     if "open the pod bay doors" in query.casefold():
@@ -27,7 +27,7 @@ def _search(*args, **kwargs):
             if k in ["id", "content", "embedding"]:
                 continue
             r += f"- **{k}**: {v}\n"
-        r += f"\n\n---\n\n{doc['content']}\n\n\n"
+        r += f"\n\n{doc['content']}\n\n---\n\n"
     return _show(r)
 HAL.search = _search
 
