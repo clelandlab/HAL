@@ -11,7 +11,7 @@ def HAL(query, t=""):
     original_cost = memory.session.get("cost", 0)
     res = output(query, silent=HAL.silent)
     if not HAL.silent:
-        print(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: {memory.session.get('cost', 0):.5f})\n")
+        print(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
     return _show(res)
 
 HAL.memory = memory

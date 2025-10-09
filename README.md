@@ -8,6 +8,11 @@ Create a `config.py` with the following content:
 GEMINI_API_KEY = "your gemini API key"
 
 MEMORY_DATA_PATH = "/path/to/the/memory/data.gz"
+
+EXEC_IMPORT = """import time, os, sys, json, yaml, scipy
+import numpy as np
+import matplotlib.pyplot as plt
+"""
 ```
 
 ## API
