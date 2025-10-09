@@ -1,4 +1,3 @@
-from google import genai
 from google.genai import types
 import json
 import memory
@@ -19,7 +18,7 @@ def code(query, import_variable={ "name": "HAL" }, silent=False):
         config=types.GenerateContentConfig(
             temperature=0,
             response_mime_type="application/json",
-            response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={ "code": types.Schema(type=genai.types.Type.STRING) }),
+            response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={ "code": types.Schema(type=types.Type.STRING) }),
             system_instruction=system_instruction
         ),
         contents=query

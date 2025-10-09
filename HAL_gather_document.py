@@ -1,4 +1,3 @@
-from google import genai
 from google.genai import types
 import memory
 from utils import client, add_generative_cost, docs2text

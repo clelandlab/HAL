@@ -1,4 +1,3 @@
-from google import genai
 from google.genai import types
 import memory
 from HAL_gather_document import gather_document
