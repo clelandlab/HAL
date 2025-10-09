@@ -31,5 +31,6 @@ def _exec(code, STATE={}, import_variable={ "name": "HAL" }):
     _code = get_exec_import(import_variable) + "\n\n" + code
     try:
         exec(_code, { "STATE": STATE }, { "STATE": STATE })
+        return None
     except Exception as e:
         return str(e)
