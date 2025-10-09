@@ -1,14 +1,12 @@
 import time, json, gzip, hashlib
 import numpy as np
-from google import genai
 import config
-from cost import add_embedding_cost
+from utils import client, add_embedding_cost
 
 session = {
     "cost": 0.0
 }
 
-client = genai.Client(api_key=config.GEMINI_API_KEY)
 data = {}
 
 # helper functions

@@ -1,4 +1,10 @@
+from google import genai
 import memory
+import config
+
+client = genai.Client(api_key=config.GEMINI_API_KEY)
+
+docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
 
 prices = {
     "gemini-embedding-001": 0.15/1e6,

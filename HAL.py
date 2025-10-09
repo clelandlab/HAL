@@ -1,5 +1,7 @@
-import sys, ai, memory, execution
+import sys
 from IPython.display import display, Markdown
+import memory
+from HAL_output import output
 
 _show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
 
@@ -7,14 +9,12 @@ def HAL(query, t=""):
     if "open the pod bay doors" in query.casefold():
         return _show("I'm sorry, Dave. I'm afraid I can't do that.")
     original_cost = memory.session.get("cost", 0)
-    docs = ai.gather_document(query, silent=HAL.silent)
-    res = ai.question(query, docs, silent=HAL.silent)
+    res = output(query, silent=HAL.silent)
     if not HAL.silent:
         print(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: {memory.session.get('cost', 0):.5f})\n")
     return _show(res)
 
 HAL.memory = memory
-HAL.ai = ai
 HAL.silent = False
 
 def _search(*args, **kwargs):
@@ -30,13 +30,5 @@ def _search(*args, **kwargs):
         r += f"\n\n{doc['content']}\n\n---\n\n"
     return _show(r)
 HAL.search = _search
-
-HAL.exec_import = '''import quick, skynet, time, os, sys, json, yaml
-import numpy as np
-import matplotlib.pyplot as plt
-skynet.label = ""
-'''
-HAL.exec_code = ""
-HAL.exec = lambda: execution._exec(HAL.exec_import + "\n" + HAL.exec_code)
 
 sys.modules[__name__] = HAL
