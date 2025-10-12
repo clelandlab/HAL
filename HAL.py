@@ -8,6 +8,7 @@ _show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
 def HAL(query, t=""):
     if "open the pod bay doors" in query.casefold():
         return _show("I'm sorry, Dave. I'm afraid I can't do that.")
+    memory.session["step"] = [] # reset steps
     original_cost = memory.session.get("cost", 0)
     res = output(query, silent=HAL.silent)
     if not HAL.silent:

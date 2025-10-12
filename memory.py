@@ -4,7 +4,8 @@ import config
 from utils import client, add_embedding_cost
 
 session = {
-    "cost": 0.0
+    "cost": 0.0,
+    "step": []
 }
 
 data = {}
