@@ -27,4 +27,6 @@ def add_generative_cost(res):
     output_token_count = u.total_token_count - u.prompt_token_count
     total_cost = p[0] * input_token_count + p[1] * output_token_count
     memory.session["cost"] += total_cost
+    if input_token_count > 2e5:
+        print(f"[HAL] Warning: input token count({input_token_count}) exceeds 200k tokens. Cost estimation will be inaccurate.")
     return total_cost
