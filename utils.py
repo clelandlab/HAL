@@ -4,7 +4,7 @@ import config
 
 client = genai.Client(api_key=config.GEMINI_API_KEY)
 
-docs2text = lambda docs: "\n\n-----\n\n\n".join(map(lambda x: x["content"], docs))
+docs2text = lambda docs: "\n\n---\n\n\n".join(map(lambda x: x["content"], docs))
 
 evalStr = lambda s, var: eval(f"f'''{s}'''", None, var)
 
@@ -12,6 +12,7 @@ prices = {
     "gemini-embedding-001": 0.15/1e6,
     "gemini-2.5-pro": (1.25/1e6, 10/1e6),
     "gemini-2.5-flash": (0.3/1e6, 2.5/1e6),
+    "gemini-2.5-flash-lite": (0.1/1e6, 0.4/1e6),
 }
 
 def add_embedding_cost(res):

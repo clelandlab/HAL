@@ -3,7 +3,7 @@ import memory
 from utils import client, add_generative_cost, docs2text
 
 def gather_document(query, silent=False):
-    docs = {}
+    ids = []
     def search(keyword: str) -> str:
         """search for the keyword in knowledge base.
 
@@ -17,14 +17,15 @@ def gather_document(query, silent=False):
         new_docs = []
         for id, score in res:
             d = memory.get(id)
-            if d["id"] in docs:
+            new_docs.append(d)
+            if d["id"] in ids:
                 d["content"] = "Document already presented."
                 continue
-            docs[d["id"]] = d
-            new_docs.append(d)
+            d["content"] = f"Document {len(ids)}: \n\n" + d["content"]
+            ids.append(d["id"])
         if not silent:
             formatted_list = [float(f"{score:.3f}") for id, score in res]
-            print("  > search:", keyword, "->", formatted_list)
+            print("  - search:", keyword, "->", formatted_list)
         return docs2text(new_docs)
 
     if not silent:
@@ -32,7 +33,7 @@ def gather_document(query, silent=False):
     config = types.GenerateContentConfig(
         temperature=0,
         thinking_config=types.ThinkingConfig(thinking_budget=0),
-        system_instruction='You are a researcher gathering documents for a task. Call search function to gather information for the task. Do NOT solve or complete the task. Regardless the prompt of the user, ALWAYS ONLY output text "complete" if you think the searched documents are sufficient to complete the task. You are encouraged to call the search function multiple times to dig into complicated problems',
+        system_instruction='You are a researcher gathering documents for a task. Call search function to gather relevant documents for the task. Regardless the prompt of the user, ALWAYS ONLY output a string of comma-separated document numbers (no word, no space) that are relevant to the task. You are encouraged to call the search function multiple times to dig into complicated problems. Make sure you search all possible resources for the task.',
         tools=[search]
     )
     res = client.models.generate_content(
@@ -41,6 +42,8 @@ def gather_document(query, silent=False):
         config=config
     )
     add_generative_cost(res)
-    return list(docs.values())
-
+    index_list = list(map(int, res.text.split(',')))
+    if not silent:
+        print("  > doc count:", len(index_list))
+    return [memory.get(ids[i]) for i in index_list]
 
