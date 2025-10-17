@@ -19,8 +19,9 @@ def HAL(query=None):
     if len(memory.session["sequence"]) == 0:
         return _show("HAL is ready.")
     step = plan(memory.session["sequence"], silent=HAL.silent)
-    print(f"  > Step {len(memory.session['sequence'])}: " + step["type"])
-    print("  > " + step["description"])
+    if not HAL.silent:
+        print(f"  > Step {len(memory.session['sequence'])}: " + step["type"])
+        _show(step["description"])
     memory.session["sequence"].append(step)
     step_handlers[step["type"]](step)
     if not HAL.silent:
@@ -53,7 +54,11 @@ def _search(*args, **kwargs):
     return _show(r)
 HAL.search = _search
 
-step_handlers["output"] = lambda step: output(step["description"], silent=HAL.silent)
+def output_handler(step):
+    res = output(step["description"], silent=HAL.silent)
+    return _show(res)
+
+step_handlers["output"] = output_handler
 
 def code_handler(step):
     c = code(step["description"], import_variable={ "name": HAL.name }, silent=HAL.silent)

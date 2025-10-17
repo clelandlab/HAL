@@ -6,8 +6,8 @@ from utils import client, add_generative_cost, docs2text, sequence2text
 
 system_instruction = lambda docs_text: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
 
-If you want to provide an answer without executing any code, choose the 'output' type.
-If you need to implement and execute Python code to proceed, choose the 'code' type.
+If user asks you a question, choose the 'output' type, so that your team member can answer the question directly.
+If you need to perform an action, choose the 'code' type, so that your team member can implement and execute the code to perform the action.
 
 Your team member will NOT access the step history. Make sure to provide sufficient details in the description to make your team members work without the step history. Your team members have access to all the documents. Do NOT repeat document content in the plan, you may specify the keyword of the document so that your team members can search for it. Using ONLY the following documents:\n\n{docs_text}"""
 
