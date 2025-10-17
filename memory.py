@@ -5,7 +5,7 @@ from utils import client, add_embedding_cost
 
 session = {
     "cost": 0.0,
-    "step": []
+    "sequence": []
 }
 
 data = {}

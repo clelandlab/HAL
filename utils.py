@@ -6,6 +6,16 @@ client = genai.Client(api_key=config.GEMINI_API_KEY)
 
 docs2text = lambda docs: "\n\n---\n\n\n".join(map(lambda x: x["content"], docs))
 
+def sequence2text(sequence):
+    res = "---\n\n"
+    for i, step in enumerate(sequence):
+        res += f"Step {i}:\n"
+        for k, v in step.items():
+            if k[0] != "_":
+                res += f"{k}: {v}\n"
+        res += "\n---\n\n"
+    return res
+
 evalStr = lambda s, var: eval(f"f'''{s}'''", None, var)
 
 prices = {
