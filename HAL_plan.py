@@ -15,9 +15,11 @@ def plan(sequence, steps=None, silent=False):
     The following are previous completed steps. Using ONLY the following documents:\n\n{docs_text}"""
     config = types.GenerateContentConfig(
         temperature=0,
-        system_instruction=system_instruction
+        system_instruction=system_instruction,
+        # response_mime_type="application/json",
+        # response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={ "code": types.Schema(type=types.Type.STRING) })
+        # TODO: structured output
     )
-    # TODO: structured output
     res = client.models.generate_content(
         model="gemini-2.5-pro",
         config=config,
