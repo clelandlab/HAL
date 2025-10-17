@@ -42,7 +42,10 @@ def gather_document(query, silent=False):
         config=config
     )
     add_generative_cost(res)
-    index_list = list(map(int, res.text.split(',')))
+    try:
+        index_list = list(map(int, res.text.split(',')))
+    except:
+        index_list = []
     if not silent:
         print("  > doc count:", len(index_list))
     return [memory.get(ids[i]) for i in index_list]

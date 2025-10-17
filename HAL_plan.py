@@ -2,34 +2,26 @@ from google.genai import types
 import json
 import memory
 from HAL_gather_document import gather_document
-from utils import client, add_generative_cost, docs2text
+from utils import client, add_generative_cost, docs2text, sequence2text
 
-def plan(query, steps=None, silent=False):
+def plan(sequence, steps=None, silent=False):
     if not silent:
         print("[HAL] Planning...")
-    docs = gather_document(f"You are giving an instruction to the next step in addressing this overall question: {query}", silent=silent)
-    context = docs2text(docs)
+    docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step. Do NOT attempt to implement anything or solve the problem. Do NOT include documents that are too detailed.\n\nStep history:\n\n{sequence2text(sequence)}", silent=silent)
+    docs_text = docs2text(docs)
+    return
+    # TODO: finalize the prompt
     system_instruction = f"""You are a planner. Your task is to give the next step in answering an overall question/task.
-    The following are previous completed steps:
-    {steps}
-    ---
-    The following are relevant documents:
-    {context}
-    ---
-    The overall question is:
-    {query}
-    ---
-    The format of your output should be like the following:
-    Step 0: a single, concise step that is independent from previous steps. Do not execute the step. The step will be given to another team member to execute. You can reference relevant documents, but do not reference any previous steps.
-    Description: a brief description of the expected result.
-    """
-    res = memory.client.models.generate_content(
+    The following are previous completed steps. Using ONLY the following documents:\n\n{docs_text}"""
+    config = types.GenerateContentConfig(
+        temperature=0,
+        system_instruction=system_instruction
+    )
+    # TODO: structured output
+    res = client.models.generate_content(
         model="gemini-2.5-pro",
-        config=types.GenerateContentConfig(
-            temperature=0,
-            system_instruction=system_instruction,
-        ),
-        contents=query
+        config=config,
+        contents=f"Step history:\n\n{sequence2text(sequence)}"
     )
     add_generative_cost(res)
     return res.text
