@@ -2,24 +2,42 @@ import sys
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 import memory
+from HAL_plan import plan
 from HAL_output import output
 from HAL_code import code, _exec
 
 _show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
 
-def HAL(query, t=""):
+step_handlers = {}
+
+def HAL(query=None):
     if "open the pod bay doors" in query.casefold():
         return _show("I'm sorry, Dave. I'm afraid I can't do that.")
-    memory.session["step"] = [] # reset steps
     original_cost = memory.session.get("cost", 0)
-    res = output(query, silent=HAL.silent)
+    if query is not None:
+        memory.session["sequence"].append({ "type": "user input", "input": query })
+    if len(memory.session["sequence"]) == 0:
+        return _show("HAL is ready.")
+    step = plan(memory.session["sequence"], silent=HAL.silent)
+    print(f"  > Step {len(memory.session['sequence'])}: " + step["type"])
+    print("  > " + step["description"])
+    memory.session["sequence"].append(step)
+    step_handlers[step["type"]](step)
     if not HAL.silent:
         print(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
-    return _show(res)
+
+sys.modules[__name__] = HAL
+
+def reset():
+    memory.session["sequence"] = []
+    memory.session["STATE"] = {}
+HAL.reset = reset
 
 HAL.memory = memory
 HAL.silent = False
 HAL.auto_exec = False
+
+HAL.name = "HAL"
 
 def _search(*args, **kwargs):
     res = memory.search(*args, **kwargs)
@@ -35,11 +53,10 @@ def _search(*args, **kwargs):
     return _show(r)
 HAL.search = _search
 
-sys.modules[__name__] = HAL
+step_handlers["output"] = lambda step: output(step["description"], silent=HAL.silent)
 
-# Temporary functions:
-def _code(query, STATE={}):
-    c = code(query)
+def code_handler(step):
+    c = code(step["description"], import_variable={ "name": HAL.name }, silent=HAL.silent)
     display(Markdown(f"---\n\n```python\n{c}\n```\n\n---"))
     output = widgets.Output()
     executed = False
@@ -49,7 +66,7 @@ def _code(query, STATE={}):
             return
         executed = True
         with output:
-            err = _exec(c, STATE)
+            err = _exec(c, memory.session["STATE"], import_variable={ "name": HAL.name })
             if err is not None:
                 print("Execution Error: ", err)
                 return
@@ -59,5 +76,5 @@ def _code(query, STATE={}):
     if HAL.auto_exec:
         trigger_exec(None)
 
-HAL.code = _code
+step_handlers["code"] = code_handler
 
