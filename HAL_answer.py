@@ -3,10 +3,9 @@ import memory
 from HAL_gather_document import gather_document
 from utils import client, add_generative_cost, docs2text
 
-def output(query, silent=False):
-    docs = gather_document(query, silent=silent)
-    text = docs2text(docs)
-    system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n\n{text}"
+def answer(prompt, silent=False):
+    docs = gather_document(prompt, silent=silent)
+    system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments and using ONLY the following documents:\n\n{docs2text(docs)}"
     if not silent:
         print("[HAL] Thinking...")
     res = client.models.generate_content(
@@ -15,7 +14,7 @@ def output(query, silent=False):
             temperature=0,
             system_instruction=system_instruction
         ),
-        contents=query
+        contents=prompt
     )
     add_generative_cost(res)
     return res.text

@@ -7,10 +7,9 @@ from utils import client, add_generative_cost, docs2text, evalStr
 
 get_exec_import = lambda var: evalStr(config.EXEC_IMPORT, var)
 
-def code(query, import_variable={ "name": "HAL" }, silent=False):
-    docs = gather_document(query, silent=silent)
-    text = docs2text(docs)
-    system_instruction = f"You are a world class programming AI that generates Python code based on user requirements. Write the code using ONLY the following documents:\n\n{text}\n\n\nThe code should be self-contained and runnable. Do NOT include any side behaviors like printing messages. Absolutely do NOT include any comments or explanations.\nTo export data or variables for later use, save them to the global dictionary `STATE`. The following packages are already imported (do NOT import them again!):\n{get_exec_import(import_variable)}"
+def code(prompt, import_variable={ "name": "HAL" }, silent=False):
+    docs = gather_document(prompt, silent=silent)
+    system_instruction = f"You are a world class programming AI that generates Python code based on user requirements. Write the code using ONLY the following documents:\n\n{docs2text(docs)}\n\n\nThe code should be self-contained and runnable. Do NOT include any side behaviors like printing messages. Absolutely do NOT include any comments or explanations.\nTo export data or variables for later use, save them to the global dictionary `STATE`. The following packages are already imported (do NOT import them again!):\n{get_exec_import(import_variable)}"
     if not silent:
         print("[HAL] Coding...")
     res = client.models.generate_content(
@@ -21,7 +20,7 @@ def code(query, import_variable={ "name": "HAL" }, silent=False):
             response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={ "code": types.Schema(type=types.Type.STRING) }),
             system_instruction=system_instruction
         ),
-        contents=query
+        contents=prompt
     )
     add_generative_cost(res)
     return json.loads(res.text)["code"]

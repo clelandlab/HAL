@@ -4,25 +4,21 @@ import memory
 from HAL_gather_document import gather_document
 from utils import client, add_generative_cost, docs2text, sequence2text
 
-system_instruction = lambda docs_text: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
+system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
 
-If user asks you a question, choose the 'output' type, so that your team member can answer the question directly.
-If you need to perform an action, choose the 'code' type, so that your team member can implement and execute the code to perform the action.
-
-Your team member will NOT access the step history. Make sure to provide sufficient details in the description to make your team members work without the step history. Your team members have access to all the documents. Do NOT repeat document content in the plan, you may specify the keyword of the document so that your team members can search for it. Using ONLY the following documents:\n\n{docs_text}"""
+Your team member will NOT access the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history. Your team members have access to all the documents. Do NOT repeat document content in the plan, you may specify the keyword of the document so that your team members can search for it. Using ONLY the following documents:\n\n{docs2text(docs)}"""
 
 def plan(sequence, silent=False):
     docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step. Do NOT attempt to implement anything or solve the problem. Do NOT include documents that are too detailed. If you cannot find high-level plans, find some related documents.\n\nStep history:\n\n{sequence2text(sequence)}", silent=silent)
-    docs_text = docs2text(docs)
     if not silent:
         print("[HAL] Planning...")
     config = types.GenerateContentConfig(
         temperature=0,
-        system_instruction=system_instruction(docs_text),
+        system_instruction=system_instruction(docs),
         response_mime_type="application/json",
-        response_schema=types.Schema(type=types.Type.OBJECT, required=["type", "description"], properties={
-            "type": types.Schema(type=types.Type.STRING, description="The type of the next step, one of: 'code'(implement and execute Python code), 'output'(answer questions or output results to the user)"),
-            "description": types.Schema(type=types.Type.STRING, description="A detailed description of the next step to take. Write the description as a prompt for large language model.")
+        response_schema=types.Schema(type=types.Type.OBJECT, required=["type", "prompt"], properties={
+            "type": types.Schema(type=types.Type.STRING, description="The type of the next step, one of: 'code'(implement and execute Python code)"),
+            "prompt": types.Schema(type=types.Type.STRING, description="Prompt for your team to complete the step, as a prompt for a large language model.")
         })
     )
     res = client.models.generate_content(

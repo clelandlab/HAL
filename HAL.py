@@ -3,7 +3,7 @@ import ipywidgets as widgets
 from IPython.display import display, Markdown
 import memory
 from HAL_plan import plan
-from HAL_output import output
+from HAL_answer import answer
 from HAL_code import code, _exec
 
 _show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
@@ -21,7 +21,7 @@ def HAL(query=None):
     step = plan(memory.session["sequence"], silent=HAL.silent)
     if not HAL.silent:
         print(f"  > Step {len(memory.session['sequence'])}: " + step["type"])
-        _show(step["description"])
+        _show(step["prompt"])
     memory.session["sequence"].append(step)
     step_handlers[step["type"]](step)
     if not HAL.silent:
@@ -54,14 +54,14 @@ def _search(*args, **kwargs):
     return _show(r)
 HAL.search = _search
 
-def output_handler(step):
-    res = output(step["description"], silent=HAL.silent)
+def answer_handler(step):
+    res = answer(step["prompt"], silent=HAL.silent)
     return _show(res)
 
-step_handlers["output"] = output_handler
+step_handlers["answer"] = answer_handler
 
 def code_handler(step):
-    c = code(step["description"], import_variable={ "name": HAL.name }, silent=HAL.silent)
+    c = code(step["prompt"], import_variable={ "name": HAL.name }, silent=HAL.silent)
     display(Markdown(f"---\n\n```python\n{c}\n```\n\n---"))
     output = widgets.Output()
     executed = False
