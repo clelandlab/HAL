@@ -9,7 +9,7 @@ from HAL_code import code, _exec, get_exec_import
 
 _show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
 
-step_handlers = {}
+handlers = {}
 
 def HAL(query=None):
     if "open the pod bay doors" in query.casefold():
@@ -21,15 +21,14 @@ def HAL(query=None):
         if category == "question":
             res = answer(query, sequence, silent=HAL.silent)
             return _show(res)
-        sequence.append({ "type": "user input", "input": query })
+        sequence.append({ "user input": query })
     if len(sequence) == 0:
         return _show("HAL is ready.")
     step = plan(sequence, silent=HAL.silent)
     if not HAL.silent:
-        print(f"  > Step {len(sequence)}: " + step["type"])
         _show(step["prompt"])
     sequence.append(step)
-    step_handlers[step["type"]](step)
+    step_handlers["code"](step)
     if not HAL.silent:
         print(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
 
@@ -60,12 +59,6 @@ def _search(*args, **kwargs):
     return _show(r)
 HAL.search = _search
 
-def answer_handler(step):
-    res = answer(step["prompt"], silent=HAL.silent)
-    return _show(res)
-
-step_handlers["answer"] = answer_handler
-
 def code_handler(step):
     import_variable = { "name": HAL.name }
     c = code(step["prompt"], import_variable=import_variable, silent=HAL.silent)
@@ -87,6 +80,5 @@ def code_handler(step):
     display(button, output)
     if HAL.auto_exec:
         trigger_exec(None)
-
-step_handlers["code"] = code_handler
+handlers["code"] = code_handler
 

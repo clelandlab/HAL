@@ -6,7 +6,7 @@ from utils import client, add_generative_cost, docs2text, sequence2text
 
 system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
 
-Your team member will NOT access the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history. Your team members have access to all the documents. Do NOT repeat document content in the plan, you may specify the keyword of the document so that your team members can search for it. Using ONLY the following documents:\n\n{docs2text(docs)}"""
+Your team member will NOT access the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history. Your team members have access to all the documents. Do NOT repeat document content in the prompt, you may specify the keyword of the document so that your team members can search for it. Using ONLY the following documents:\n\n{docs2text(docs)}"""
 
 def plan(sequence, silent=False):
     docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step action. Do NOT attempt to implement anything or solve the problem. Do NOT include documents that are too detailed. If you cannot find high-level plans, find some related documents about the action to be implemented.\n\nStep history:\n\n{sequence2text(sequence)}", silent=silent)
@@ -16,8 +16,7 @@ def plan(sequence, silent=False):
         temperature=0,
         system_instruction=system_instruction(docs),
         response_mime_type="application/json",
-        response_schema=types.Schema(type=types.Type.OBJECT, required=["type", "prompt"], properties={
-            "type": types.Schema(type=types.Type.STRING, description="The type of the next step, one of: 'code'(implement and execute Python code)"),
+        response_schema=types.Schema(type=types.Type.OBJECT, required=["prompt"], properties={
             "prompt": types.Schema(type=types.Type.STRING, description="Prompt for your team to complete the step, as a prompt for a large language model.")
         })
     )
