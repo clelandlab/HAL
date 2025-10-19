@@ -5,7 +5,7 @@ from utils import client, add_generative_cost
 system_instruction = '''You are an expert at classifying user prompts into categories. Given a user prompt, classify it into one of the following categories:
 
 - "question": if the prompt is asking for an answer or explanation, like how to write a code or why something is wrong.
-- "action": if the prompt is requesting to perform a task or action, like take a measurement or run a data analysis.
+- "action": if the prompt is requesting to perform a task or action, like take a measurement or run a data analysis or fix something.
 '''
 
 def sort(prompt, silent=False):
