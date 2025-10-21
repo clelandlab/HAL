@@ -1,3 +1,4 @@
+import re
 from google.genai import types
 import memory
 from utils import client, add_generative_cost, docs2text
@@ -24,8 +25,9 @@ def gather_document(query, silent=False):
             d["content"] = f"Document {len(ids)}: \n\n" + d["content"]
             ids.append(d["id"])
         if not silent:
-            formatted_list = [float(f"{score:.3f}") for id, score in res]
-            print("  - search:", keyword, "->", formatted_list)
+            score_list = [float(f"{score:.3f}") for id, score in res]
+            index_list = [ids.index(id) for id, score in res]
+            print("  - search:", keyword, "->", index_list, score_list)
         return docs2text(new_docs)
 
     if not silent:
@@ -43,10 +45,11 @@ def gather_document(query, silent=False):
     )
     add_generative_cost(res)
     try:
-        index_list = list(map(int, res.text.split(',')))
+        text = re.sub(r'[^0-9,]', '', res.text)
+        index_list = list(map(int, text.split(',')))
     except:
         index_list = []
     if not silent:
-        print("  > doc count:", len(index_list))
-    return [memory.get(ids[i]) for i in index_list]
+        print(f"  > doc count: {len(index_list)} [{text}]")
+    return [memory.get(ids[i]) for i in index_list if i < len(ids)]
 

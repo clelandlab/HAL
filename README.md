@@ -17,13 +17,25 @@ import matplotlib.pyplot as plt
 
 ## API
 
-### Memory
-
 ```python
-id = memory.add(content, meta={})
-doc = memory.get(doc_id)
-memory.delete(doc_id)
-docs, scores = memory.search(q, maxn=5, cutoff_gradient=0.03, threshold=0.6):
-memory.load()
-memory.save()
+HAL(query=None)
+
+# config
+HAL.name = "HAL"
+HAL.auto = False
+HAL.silent = False
+
+# session operations
+HAL.reset()
+HAL.save(path="session.json")
+HAL.load(path="session.json")
+
+# memory operations
+HAL.search(query)
+id = HAL.memory.add(content, meta={})
+doc = HAL.memory.get(doc_id)
+HAL.memory.delete(doc_id)
+docs, scores = HAL.memory.search(q, maxn=5, cutoff_gradient=0.03, threshold=0.6):
+HAL.memory.load()
+HAL.memory.save()
 ```
