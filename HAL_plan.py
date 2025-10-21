@@ -6,7 +6,9 @@ from utils import client, add_generative_cost, docs2text, sequence2text
 
 system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
 
-Your team member will NOT access the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history. Your team members have access to all the documents. Do NOT repeat document content in the prompt, you may specify the keyword of the document so that your team members can search for it. Using ONLY the following documents:\n\n{docs2text(docs)}"""
+Your team members can access all the documents, but NOT the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history, like the detailed information from user input. Do NOT repeat document content in the prompt. Specify relevant documents so that your team members can search for them.
+
+You may modify or add information to existing plans. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
 
 def plan(sequence, silent=False):
     docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step action. Do NOT attempt to implement anything or solve the problem. Do NOT include documents that are too detailed. If you cannot find high-level plans, find some related documents about the action to be implemented.\n\nStep history:\n\n{sequence2text(sequence)}", silent=silent)
