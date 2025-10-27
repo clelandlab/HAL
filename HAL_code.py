@@ -20,9 +20,9 @@ def code(prompt, import_variable={ "name": "HAL" }, silent=False):
             response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={
                 "code": types.Schema(type=types.Type.STRING),
                 "require_input": types.Schema(type=types.Type.ARRAY, items=types.Schema(type=types.Type.OBJECT, required=["key", "description"], properties={
-                    "key": types.Schema(type = types.Type.STRING),
-                    "default": types.Schema(type = types.Type.STRING),
-                    "description": types.Schema(type = types.Type.STRING)
+                    "key": types.Schema(type=types.Type.STRING),
+                    "default": types.Schema(type=types.Type.STRING),
+                    "description": types.Schema(type=types.Type.STRING, description="a short phrase describing the input")
                 })) }),
             system_instruction=system_instruction
         ),
