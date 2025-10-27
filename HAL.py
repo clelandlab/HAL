@@ -60,11 +60,11 @@ HAL.search = _search
 
 def code_handler(step):
     import_variable = { "name": HAL.name }
-    c, require_input = code(step["prompt"], import_variable=import_variable, silent=HAL.silent)
+    c, request_input = code(step["prompt"], import_variable=import_variable, silent=HAL.silent)
     input_widgets = {}
     step["_code"] = c
     display(Markdown(f"---\n\n```python\n{get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```\n\n---"))
-    for v in require_input:
+    for v in request_input:
         print(f'- input: {v["description"]}')
         w = widgets.Text(value=v.get("default", ""), description=v["key"])
         input_widgets[v["key"]] = w
@@ -83,7 +83,7 @@ def code_handler(step):
             if err is not None:
                 print("Execution Error: ", err)
                 return
-    auto_exec = HAL.auto and len(require_input) == 0
+    auto_exec = HAL.auto and len(request_input) == 0
     button = widgets.Button(description="Auto Executed" if auto_exec else "Execute", button_style='' if auto_exec else 'primary')
     button.on_click(trigger_exec)
     display(button, output)
