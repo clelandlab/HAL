@@ -76,12 +76,7 @@ def code_handler(step):
         input_widgets[v["key"]] = w
         display(w)
     output = widgets.Output()
-    executed = False
     def trigger_exec(b):
-        nonlocal executed
-        if executed:
-            return
-        executed = True
         with output:
             for k in input_widgets:
                 memory.session["STATE"][k] = input_widgets[k].value
