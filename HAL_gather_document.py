@@ -32,7 +32,7 @@ def gather_document(query, recursive=False, silent=False):
 
     if not silent:
         print("[HAL] Gathering documents...")
-    system_instruction = "You are a researcher gathering documents for a task. Call search function to gather relevant documents for the task. You may call the search function multiple times to gather all relevant documents for the task.\n"
+    system_instruction = "You are a researcher gathering documents for a task. Call search function to gather relevant documents for the task. You may call the search function multiple times to gather all relevant documents for the task. Always search for documents instead of assuming.\n"
     if recursive:
         system_instruction += '**You MUST recursively search for all documents refered by previously gathered relevant documents. For example, ALWAYS search for X if a relevant document says something like "see X", "search X" or "refer to X". All the documents refered by a relevant document are also relevant documents.**\n'
     system_instruction += "\n**Regardless the prompt, ALWAYS ONLY output relevant document numbers separated by comma.**\nOutput format example: 0,2,3,5"
