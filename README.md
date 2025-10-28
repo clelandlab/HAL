@@ -32,6 +32,9 @@ HAL.load(path="session.json")
 
 # memory operations
 HAL.search(query)
+HAL.memorize(content, meta={ "source": HAL.name })
+
+# low-level memory operations
 id = HAL.memory.add(content, meta={})
 doc = HAL.memory.get(doc_id)
 HAL.memory.delete(doc_id)

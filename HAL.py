@@ -58,6 +58,12 @@ def _search(*args, **kwargs):
     return _show(r)
 HAL.search = _search
 
+def _memorize(content=None, meta={ "source": HAL.name }):
+    if isinstance(content, str):
+        return memory.add(content, meta)
+    return ''
+HAL.memorize = _memorize
+
 def code_handler(step):
     import_variable = { "name": HAL.name }
     c, request_input = code(step["prompt"], import_variable=import_variable, silent=HAL.silent)
