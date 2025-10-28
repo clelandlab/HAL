@@ -6,7 +6,7 @@ from utils import client, add_generative_cost, docs2text, sequence2text
 
 system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
 
-Your team members can access all the documents, but NOT the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history, like the detailed information from user input. Do NOT repeat document content in the prompt. Specify relevant documents so that your team members can search for them.
+Your team members can access all the documents, but NOT the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history, like the detailed information from user input. Do NOT repeat document content in the prompt. Specify relevant documents so that your team members can search for them. It's not recommended to refer to plan documents unless necessary.
 
 You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
 
