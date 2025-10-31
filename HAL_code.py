@@ -7,15 +7,21 @@ from utils import client, add_generative_cost, docs2text, evalStr
 
 get_exec_import = lambda var: evalStr(config.EXEC_IMPORT, var)
 
-system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on user requirements. Write the code using ONLY the following documents:
+system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write the code using ONLY the following documents:
 
 {docs2text(docs)}
 
-The code should be self-contained and runnable. Do NOT include any side behaviors like printing messages. Absolutely do NOT include any comments or explanations.
-If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. Contexts including user inputs will be passed as a global dictionary `STATE`.
-To export data or variables for later use, store them to the global dictionary `STATE` (you cannot assign to `STATE`, you can only update it).
+## Coding Guidelines
 
-The following packages are already imported. Do NOT import them again!
+The code should be self-contained and runnable. Absolutely NO comments, NO explanations, NO side behaviors like printing messages.
+
+You have an immutable global dictionary `STATE` that persists across multiple code executions. Use it to store any variables or data that need to be retained or exported. Note that you cannot assign to `STATE`, you can only modify its contents.
+
+If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. Contexts including user inputs will be passed in `STATE`. Note that all user inputs are strings.
+
+`STATE["SIGNAL"]` is a special variable for signal. SIGNAL should be a short string in natural language, describing the key outcome of the code execution. If there is no signal description in prompt, set it to "SUCCESS" or a descriptive error message.
+
+The following packages are already imported and ready to use. Do NOT import these packages again!
 
 ```python
 {get_exec_import(import_variable)}
@@ -46,6 +52,7 @@ def code(prompt, import_variable={ "name": "HAL" }, silent=False):
     return r["code"], r.get("request_input", [])
 
 def _exec(code, STATE={}, import_variable={ "name": "HAL" }):
+    STATE["SIGNAL"] = ""
     _code = get_exec_import(import_variable) + "\n\n" + code
     try:
         exec(_code, { "STATE": STATE }, { "STATE": STATE })

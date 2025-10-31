@@ -81,6 +81,7 @@ def code_handler(step):
             for k in input_widgets:
                 memory.session["STATE"][k] = input_widgets[k].value
             err = _exec(c, memory.session["STATE"], import_variable=import_variable)
+            step["SIGNAL"] = memory.session["STATE"].get("SIGNAL", "")
             if err is not None:
                 print("Execution Error: ", err)
                 return
