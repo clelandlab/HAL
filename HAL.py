@@ -1,5 +1,5 @@
 import sys
-import json
+import json, random, string
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 import memory
@@ -59,9 +59,24 @@ def _search(*args, **kwargs):
 HAL.search = _search
 
 def _memorize(content=None, meta={ "source": HAL.name }):
+    if HAL.name == "HAL":
+        return print("[HAL] Error: Please set HAL.name to memorize")
     if isinstance(content, str):
         return memory.add(content, meta)
-    return ''
+    if content is None:
+        content = len(memory.session.get("sequence", [])) - 1
+    if isinstance(content, int):
+        seq = memory.session.get("sequence", [])
+        if content < 0 or content >= len(seq):
+            return print(f"[HAL] Error: Invalid sequence [{content}]")
+        step = seq[content]
+        if "prompt" not in step or "_code" not in step:
+            return print(f"[HAL] Error: Sequence [{content}] does not contain a valid step to memorize")
+        n = "".join(random.choices(string.ascii_uppercase, k=2)) + str(len(memory.data.keys()))
+        c = f"# Code Example {n}:\n\n## Prompt:\n\n{step['prompt']}\n\n## Code:\n\nYou can directly run the following code by calling `INVOKE('Code Example {n}')`\n\n```python\n{step['_code']}\n```"
+        meta["invoke"] = 1
+        return memory.add(c, meta)
+    return print("[HAL] Error: Unsupported content type for memorize")
 HAL.memorize = _memorize
 
 def code_handler(step):
