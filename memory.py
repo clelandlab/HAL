@@ -57,11 +57,13 @@ def delete(doc_id):
     del data[doc_id]
 
 # return a list of (doc_id, score)
-def search(q, maxn=5, cutoff_gradient=0.05, threshold=0.6):
+def search(q, maxn=5, cutoff_gradient=0.05, threshold=0.6, filter=None):
     scores = []
     score = 0
     q_embedding = embed(q, task_type="retrieval_query")
     for doc_id, data_dict in data.items():
+        if filter is not None and not filter(data_dict):
+            continue
         score = cos_sim(q_embedding, np.array(data_dict['embedding']))
         if score < threshold:
             continue
