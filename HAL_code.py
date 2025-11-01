@@ -7,19 +7,21 @@ from utils import client, add_generative_cost, docs2text, evalStr
 
 get_exec_import = lambda var: evalStr(config.EXEC_IMPORT, var)
 
-system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write the code using ONLY the following documents:
+system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write the code using the following documents:
 
 {docs2text(docs)}
 
 ## Coding Guidelines
 
-The code should be self-contained and runnable. Absolutely NO comments, NO explanations, NO side behaviors like printing messages.
+The code should be runnable. Absolutely NO comments, NO explanations, NO side behaviors like printing messages.
 
 You have an immutable global dictionary `STATE` that persists across multiple code executions. Use it to store any variables or data that need to be retained or exported. Note that you cannot assign to `STATE`, you can only modify its contents.
 
 If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. Contexts including user inputs will be passed in `STATE`. Note that all user inputs are strings.
 
 `STATE["SIGNAL"]` is a special variable for signal. SIGNAL should be a short string in natural language, describing the key outcome of the code execution. If there is no signal description in prompt, set it to "SUCCESS" or a descriptive error message.
+
+Inspect the code segments in the provided documents, and think if they can be used in the code. You are strongly encouraged to use a global function `INVOKE` to directly run code segments. The invoked code will share the same `STATE`. You should invoke code segments to reduce code redundancy as much as possible. You can do extra processing before or after invoking.
 
 The following packages are already imported and ready to use. Do NOT import these packages again!
 

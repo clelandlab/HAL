@@ -58,9 +58,11 @@ def _search(*args, **kwargs):
     return _show(r)
 HAL.search = _search
 
-def _memorize(content=None, meta={ "source": HAL.name }):
+def _memorize(content=None, meta={}):
     if HAL.name == "HAL":
         return print("[HAL] Error: Please set HAL.name to memorize")
+    if "source" not in meta:
+        meta["source"] = HAL.name
     if isinstance(content, str):
         return memory.add(content, meta)
     if content is None:
@@ -73,7 +75,7 @@ def _memorize(content=None, meta={ "source": HAL.name }):
         if "prompt" not in step or "_code" not in step:
             return print(f"[HAL] Error: Sequence [{content}] does not contain a valid step to memorize")
         n = "".join(random.choices(string.ascii_uppercase, k=2)) + str(len(memory.data.keys()))
-        c = f"# Code Example {n}:\n\n## Prompt:\n\n{step['prompt']}\n\n## Code:\n\nYou can directly run the following code by calling `INVOKE('Code Example {n}')`\n\n```python\n{step['_code']}\n```"
+        c = f"# Code Segment {n}:\n\n## Prompt:\n\n{step['prompt']}\n\n## Code:\n\nYou can directly run the following code by calling `INVOKE('Code Segment {n}')`\n\n```python\n{step['_code']}\n```"
         meta["invoke"] = 1
         return memory.add(c, meta)
     return print("[HAL] Error: Unsupported content type for memorize")
