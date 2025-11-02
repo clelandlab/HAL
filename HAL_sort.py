@@ -1,6 +1,7 @@
 from google.genai import types
 import json
-from utils import client, add_generative_cost
+import memory
+from utils import add_generative_cost
 from display import log
 
 system_instruction = '''You are an expert at classifying user prompts into categories. Given a user prompt, classify it into one of the following categories:
@@ -18,7 +19,7 @@ def sort(prompt):
         response_mime_type="application/json",
         response_schema=types.Schema(type=types.Type.OBJECT, required=["category"], properties={ "category": types.Schema(type=types.Type.STRING) })
     )
-    res = client.models.generate_content(
+    res = memory.client.models.generate_content(
         model="gemini-2.5-flash",
         config=config,
         contents=prompt

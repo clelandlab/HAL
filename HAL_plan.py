@@ -2,7 +2,7 @@ from google.genai import types
 import json
 import memory
 from HAL_gather_document import gather_document
-from utils import client, add_generative_cost, docs2text, sequence2text
+from utils import add_generative_cost, docs2text, sequence2text
 from display import log
 
 system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
@@ -26,7 +26,7 @@ def plan(sequence):
             "prompt": types.Schema(type=types.Type.STRING, description="Prompt for your team to complete the step, as a prompt for a large language model.")
         })
     )
-    res = client.models.generate_content(
+    res = memory.client.models.generate_content(
         model="gemini-2.5-pro",
         config=config,
         contents=f"Step history:\n\n{sequence2text(sequence)}"

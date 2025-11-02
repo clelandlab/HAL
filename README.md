@@ -2,22 +2,20 @@
 
 ## Config
 
-Create a `config.py` with the following content:
+Create a `config.json` with the following content:
 
-```python
-GEMINI_API_KEY = "your gemini API key"
-
-MEMORY_DATA_PATH = "/path/to/the/memory/data.gz"
-
-EXEC_IMPORT = """import time, os, sys, json, yaml, scipy
-import numpy as np
-import matplotlib.pyplot as plt
-"""
+```json
+{
+  "GEMINI_API_KEY": "your gemini API key",
+  "MEMORY_DATA_PATH": "/path/to/the/memory/data.gz",
+  "EXEC_IMPORT": "import time, os, sys, json, yaml, scipy\nimport numpy as np\nimport matplotlib.pyplot as plt\n"
+}
 ```
 
 ## API
 
 ```python
+HAL.init(config="config.json")
 HAL(query=None)
 
 # config

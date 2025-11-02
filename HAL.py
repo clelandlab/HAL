@@ -1,8 +1,8 @@
-import sys
-import json, random, string
+import sys, json, random, string
+from google import genai
 import ipywidgets as widgets
 from IPython.display import display, Markdown
-import memory
+import memory, utils
 from HAL_sort import sort
 from HAL_plan import plan
 from HAL_answer import answer
@@ -27,13 +27,21 @@ def HAL(query=None):
     if len(sequence) == 0:
         return _show("HAL is ready.")
     step = plan(sequence)
-    if not HAL.silent:
-        _show(step["prompt"])
+    _show(step["prompt"])
     sequence.append(step)
     handlers["code"](step)
     log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
 
 sys.modules[__name__] = HAL
+
+def init(_config):
+    if isinstance(_config, dict):
+        utils.config.update(_config)
+    if isinstance(_config, str):
+        utils.config.update(json.load(open(_config, "r")))
+    memory.client = genai.Client(api_key=utils.config["GEMINI_API_KEY"])
+    memory.load()
+HAL.init = init
 
 HAL.reset = lambda: memory.session.update({ "sequence": [], "STATE": {} })
 HAL.save = lambda path="session.json": json.dump(memory.session, open(path, "w"), indent=2)

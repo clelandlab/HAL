@@ -1,7 +1,6 @@
 import time, json, gzip, hashlib
 import numpy as np
-import config
-from utils import client, add_embedding_cost
+from utils import add_embedding_cost, config
 
 session = {
     "cost": 0.0,
@@ -9,20 +8,22 @@ session = {
     "STATE": {}
 }
 
+clent = None # gemini client
+
 data = {}
 
 # helper functions
 cos_sim = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 def load():
     global data
-    with gzip.open(config.MEMORY_DATA_PATH, 'rt') as f:
+    with gzip.open(config["MEMORY_DATA_PATH"], 'rt') as f:
         try:
             data = json.load(f)
         except:
             data = {}
     return data
 def save():
-    with gzip.open(config.MEMORY_DATA_PATH, 'wt') as f:
+    with gzip.open(config["MEMORY_DATA_PATH"], 'wt') as f:
         json.dump(data, f)
 def sha256str(s):
     h = hashlib.sha256()
@@ -35,10 +36,6 @@ def embed(content, task_type="retrieval_document"):
         return client.models.embed_content(model=model, contents=content, config={"task_type": task_type}).embeddings[0].values
     except:
         return None
-
-def init():
-    load()
-init()
 
 # operations
 def add(content, meta={}):

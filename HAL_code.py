@@ -1,12 +1,11 @@
 from google.genai import types
 import json
 import memory
-import config
 from HAL_gather_document import gather_document
-from utils import client, add_generative_cost, docs2text, evalStr
+from utils import add_generative_cost, docs2text, evalStr, config
 from display import log
 
-get_exec_import = lambda var: evalStr(config.EXEC_IMPORT, var)
+get_exec_import = lambda var: evalStr(config["EXEC_IMPORT"], var)
 
 system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write the code using the following documents:
 
@@ -33,7 +32,7 @@ The following packages are already imported and ready to use. Do NOT import thes
 def code(prompt, import_variable={ "name": "HAL" }):
     docs = gather_document(prompt, recursive=True)
     log("[HAL] Coding...")
-    res = client.models.generate_content(
+    res = memory.client.models.generate_content(
         model="gemini-2.5-pro",
         config=types.GenerateContentConfig(
             temperature=0,

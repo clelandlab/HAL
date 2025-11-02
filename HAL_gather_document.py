@@ -1,7 +1,7 @@
 import re
 from google.genai import types
 import memory
-from utils import client, add_generative_cost, docs2text
+from utils import add_generative_cost, docs2text
 from display import log
 
 def gather_document(query, recursive=False):
@@ -40,7 +40,7 @@ def gather_document(query, recursive=False):
         system_instruction=system_instruction,
         tools=[search]
     )
-    res = client.models.generate_content(
+    res = memory.client.models.generate_content(
         model="gemini-2.5-flash",
         contents=query,
         config=config
