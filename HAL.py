@@ -25,11 +25,13 @@ def HAL(query=None):
     if len(sequence) == 0:
         return display.show("HAL is ready.")
     display.sequence(sequence)
-    step = plan(sequence)
-    step["_type"] = "code"
+    res = plan(sequence)
+    step = { "prompt": res["prompt"] }
+    step["_type"] = res["type"]
+    display.log(f"  > {step['_type']}")
     sequence.append(step)
     display.sequence(sequence)
-    handlers["code"](step)
+    handlers[step["_type"]](step)
     display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
     display.sequence(sequence)
 
@@ -105,6 +107,11 @@ def _memorize(content=None, meta={}):
         return memory.add(c, meta)
     return print("[HAL] Error: Unsupported content type for memorize")
 HAL.memorize = _memorize
+
+def end_handler(step):
+    step["prompt"] = "Session ended."
+    display.show("[HAL] session ended.")
+handlers["end"] = end_handler
 
 def code_handler(step):
     import_variable = { "name": HAL.name }

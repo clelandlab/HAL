@@ -13,6 +13,8 @@ Do NOT repeat document content in the prompt. Specify relevant documents so that
 
 SIGNAL is a special string variable that describes the key outcome of the step. It can include some critical numbers like goodness of fitting, or short messages like "SUCCESS" or error. Provide a SIGNAL description in your prompt, so that your team can present the result to you. 
 
+If the task requested by the user is completed, set the step type to "end" and output empty prompt.
+
 You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
 
 def plan(sequence):
@@ -22,7 +24,8 @@ def plan(sequence):
         temperature=0,
         system_instruction=system_instruction(docs),
         response_mime_type="application/json",
-        response_schema=types.Schema(type=types.Type.OBJECT, required=["prompt"], properties={
+        response_schema=types.Schema(type=types.Type.OBJECT, required=["type", "prompt"], properties={
+            "type": types.Schema(type=types.Type.STRING, description="Type of the next step, one of: 'code', 'end'."),
             "prompt": types.Schema(type=types.Type.STRING, description="Prompt for your team to complete the step, as a prompt for a large language model.")
         })
     )
