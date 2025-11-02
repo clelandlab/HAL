@@ -1,5 +1,6 @@
 import time, json, gzip, hashlib
 import numpy as np
+from display import log
 from utils import add_embedding_cost, config
 
 session = {
@@ -19,6 +20,7 @@ def load():
     with gzip.open(config["MEMORY_DATA_PATH"], 'rt') as f:
         try:
             data = json.load(f)
+            log(f"[HAL] Memory loaded: {len(data)} documents.")
         except:
             data = {}
     return data

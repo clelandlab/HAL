@@ -1,7 +1,7 @@
 import sys, json, random, string
 from google import genai
 import ipywidgets as widgets
-from IPython.display import display, Markdown
+from IPython.display import display as _display
 import memory, utils, display
 from HAL_sort import sort
 from HAL_plan import plan
@@ -19,17 +19,27 @@ def HAL(query=None):
         category = sort(query)
         if category == "question":
             res = answer(query, sequence)
+            display.log("")
             return display.show(res)
-        sequence.append({ "user input": query })
+        sequence.append({ "user input": query, "_type": "user input" })
     if len(sequence) == 0:
         return display.show("HAL is ready.")
+    display.sequence(sequence)
     step = plan(sequence)
-    display.show(step["prompt"])
+    step["_type"] = "code"
     sequence.append(step)
+    display.sequence(sequence)
     handlers["code"](step)
     display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
+    display.sequence(sequence)
 
 sys.modules[__name__] = HAL
+
+HAL.name = "HAL"
+HAL.auto = False
+HAL.memory = memory
+
+# Following are HAL methods
 
 def _init(_config):
     if isinstance(_config, dict):
@@ -37,19 +47,28 @@ def _init(_config):
     if isinstance(_config, str):
         utils.config.update(json.load(open(_config, "r")))
     memory.client = genai.Client(api_key=utils.config["GEMINI_API_KEY"])
-    memory.load()
     display.init()
-    display.log("[HAL] Memory loaded.")
+    memory.load()
+    display.log("[HAL] Ready.")
 HAL.init = _init
 
-HAL.reset = lambda: memory.session.update({ "sequence": [], "STATE": {} })
-HAL.save = lambda path="session.json": json.dump(memory.session, open(path, "w"), indent=2)
-HAL.load = lambda path="session.json": memory.session.update(json.load(open(path, "r")))
+def _reset():
+    memory.session.update({ "cost": 0.0, "sequence": [], "STATE": {} })
+    display.log("[HAL] Session reset.")
+    display.sequence(memory.session.get("sequence", []))
+HAL.reset = _reset
 
-HAL.name = "HAL"
-HAL.auto = False
+def _save(path="session.json"):
+    display.log(f"[HAL] Session saved to {path}")
+    return json.dump(memory.session, open(path, "w"), indent=2)
+HAL.save = _save
 
-HAL.memory = memory
+def _load(path="session.json"):
+    display.log(f"[HAL] Session loaded from {path}")
+    memory.session.update(json.load(open(path, "r")))
+    display.sequence(memory.session.get("sequence", []))
+HAL.load = _load
+
 def _search(*args, **kwargs):
     res = memory.search(*args, **kwargs)
     r = ""
@@ -92,12 +111,12 @@ def code_handler(step):
     c, request_input = code(step["prompt"], import_variable=import_variable)
     input_widgets = {}
     step["_code"] = c
-    display(Markdown(f"---\n\n```python\n{get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```\n\n---"))
+    display.show(f"```python\n{get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```")
     for v in request_input:
         print(f'- input: {v["description"]}')
         w = widgets.Text(value=v.get("default", ""), description=v["key"])
         input_widgets[v["key"]] = w
-        display(w)
+        _display(w)
     output = widgets.Output()
     def trigger_exec(b):
         with output:
@@ -111,7 +130,7 @@ def code_handler(step):
     auto_exec = HAL.auto and len(request_input) == 0
     button = widgets.Button(description="Auto Executed" if auto_exec else "Execute", button_style='' if auto_exec else 'primary')
     button.on_click(trigger_exec)
-    display(button, output)
+    _display(button, output)
     if auto_exec:
         trigger_exec(None)
 handlers["code"] = code_handler

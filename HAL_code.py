@@ -31,7 +31,7 @@ The following packages are already imported and ready to use. Do NOT import thes
 
 def code(prompt, import_variable={ "name": "HAL" }):
     docs = gather_document(prompt, recursive=True)
-    log("[HAL] Coding...")
+    log("[HAL] Coding...", "Coding")
     res = memory.client.models.generate_content(
         model="gemini-2.5-pro",
         config=types.GenerateContentConfig(

@@ -30,7 +30,7 @@ def gather_document(query, recursive=False):
         log(f"  - search: {query} -> {len(index_list)} {score_list}")
         return docs2text(new_docs)
 
-    log("[HAL] Gathering documents...")
+    log("[HAL] Gathering documents...", "Gathering Documents")
     system_instruction = "You are a researcher preparing documents for a coming task. You MUST call the search function to gather relevant documents for the task. You can call the search function multiple times to gather all relevant documents for the task. Always search for documents instead of assuming.\n\n**When you gathered sufficient documents, output a list of numbers indicating the indices of relevant document. Do NOT attempt to solve the problem! Do NOT generate any code!**\noutput format example: 0,2,3,6\n\n"
     if recursive:
         system_instruction += '**You MUST recursively gather ALL documents/tools/methods refered by relevant search results INFINITELY. You are strongly encouraged to call the search function multiple times.\n\nFor example, if a search result states "use X", "see X", "search X" or "refer to X"\nYour action should be search("X")\nLater, include all the searched documents in the output.**'

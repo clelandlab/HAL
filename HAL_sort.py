@@ -11,7 +11,7 @@ system_instruction = '''You are an expert at classifying user prompts into categ
 '''
 
 def sort(prompt):
-    log("[HAL] Sorting...")
+    log("[HAL] Sorting...", "Sorting")
     config = types.GenerateContentConfig(
         temperature=0,
         thinking_config=types.ThinkingConfig(thinking_budget=0),
