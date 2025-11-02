@@ -15,10 +15,10 @@ Create a `config.json` with the following content:
 ## API
 
 ```python
-HAL.init(config="config.json")
+HAL.init("Name", _config=None)
 HAL(query=None)
 
-# config
+# properties
 HAL.name = "HAL"
 HAL.auto = False
 

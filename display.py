@@ -1,7 +1,7 @@
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 
-log_output = widgets.Output(layout={'height': '200px', 'overflow_y': 'auto'})
+log_output = widgets.Output(layout={'height': '300px', 'overflow_y': 'auto'})
 log_accordion = widgets.Accordion(children=[log_output], titles=["[HAL]"])
 sequence_accordion = widgets.Accordion()
 

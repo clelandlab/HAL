@@ -1,4 +1,4 @@
-import sys, json, random, string
+import sys, os, json, random, string
 from google import genai
 import ipywidgets as widgets
 from IPython.display import display as _display
@@ -43,7 +43,10 @@ HAL.memory = memory
 
 # Following are HAL methods
 
-def _init(_config):
+def _init(name, _config=None):
+    HAL.name = name
+    if _config is None:
+        _config = os.path.dirname(os.path.abspath(__file__)) + '/config.json'
     if isinstance(_config, dict):
         utils.config.update(_config)
     if isinstance(_config, str):
