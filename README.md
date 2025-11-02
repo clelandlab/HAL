@@ -23,7 +23,6 @@ HAL(query=None)
 # config
 HAL.name = "HAL"
 HAL.auto = False
-HAL.silent = False
 
 # session operations
 HAL.reset()

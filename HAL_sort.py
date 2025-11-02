@@ -1,6 +1,7 @@
 from google.genai import types
 import json
 from utils import client, add_generative_cost
+from display import log
 
 system_instruction = '''You are an expert at classifying user prompts into categories. Given a user prompt, classify it into one of the following categories:
 
@@ -8,9 +9,8 @@ system_instruction = '''You are an expert at classifying user prompts into categ
 - "action": if the prompt is requesting to perform a task or action, like take a measurement or run a data analysis or fix something.
 '''
 
-def sort(prompt, silent=False):
-    if not silent:
-        print("[HAL] Sorting...")
+def sort(prompt):
+    log("[HAL] Sorting...")
     config = types.GenerateContentConfig(
         temperature=0,
         thinking_config=types.ThinkingConfig(thinking_budget=0),
@@ -24,6 +24,5 @@ def sort(prompt, silent=False):
         contents=prompt
     )
     category = json.loads(res.text)["category"]
-    if not silent:
-        print("  >", category)
+    log(f"  > {category}")
     return category

@@ -4,6 +4,7 @@ import memory
 import config
 from HAL_gather_document import gather_document
 from utils import client, add_generative_cost, docs2text, evalStr
+from display import log
 
 get_exec_import = lambda var: evalStr(config.EXEC_IMPORT, var)
 
@@ -29,10 +30,9 @@ The following packages are already imported and ready to use. Do NOT import thes
 {get_exec_import(import_variable)}
 ```"""
 
-def code(prompt, import_variable={ "name": "HAL" }, silent=False):
-    docs = gather_document(prompt, recursive=True, silent=silent)
-    if not silent:
-        print("[HAL] Coding...")
+def code(prompt, import_variable={ "name": "HAL" }):
+    docs = gather_document(prompt, recursive=True)
+    log("[HAL] Coding...")
     res = client.models.generate_content(
         model="gemini-2.5-pro",
         config=types.GenerateContentConfig(

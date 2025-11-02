@@ -3,6 +3,7 @@ import json
 import memory
 from HAL_gather_document import gather_document
 from utils import client, add_generative_cost, docs2text, sequence2text
+from display import log
 
 system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
 
@@ -14,10 +15,9 @@ SIGNAL is a special string variable that describes the key outcome of the step. 
 
 You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
 
-def plan(sequence, silent=False):
-    docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step action. Do NOT attempt to implement anything or solve the problem. Focus on high-level plans and do NOT include documents that are too detailed. If you can find several related high-level plans, just return these plans. If you cannot find high-level plans, search some related documents.\n\nStep history:\n\n{sequence2text(sequence)}", silent=silent)
-    if not silent:
-        print("[HAL] Planning...")
+def plan(sequence):
+    docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step action. Do NOT attempt to implement anything or solve the problem. Focus on high-level plans and do NOT include documents that are too detailed. If you can find several related high-level plans, just return these plans. If you cannot find high-level plans, search some related documents.\n\nStep history:\n\n{sequence2text(sequence)}")
+    log("[HAL] Planning...")
     config = types.GenerateContentConfig(
         temperature=0,
         system_instruction=system_instruction(docs),

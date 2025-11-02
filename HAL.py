@@ -7,6 +7,7 @@ from HAL_sort import sort
 from HAL_plan import plan
 from HAL_answer import answer
 from HAL_code import code, _exec, get_exec_import
+from display import log
 
 _show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
 
@@ -18,20 +19,19 @@ def HAL(query=None):
     original_cost = memory.session.get("cost", 0)
     sequence = memory.session["sequence"]
     if query is not None:
-        category = sort(query, silent=HAL.silent)
+        category = sort(query)
         if category == "question":
-            res = answer(query, sequence, silent=HAL.silent)
+            res = answer(query, sequence)
             return _show(res)
         sequence.append({ "user input": query })
     if len(sequence) == 0:
         return _show("HAL is ready.")
-    step = plan(sequence, silent=HAL.silent)
+    step = plan(sequence)
     if not HAL.silent:
         _show(step["prompt"])
     sequence.append(step)
     handlers["code"](step)
-    if not HAL.silent:
-        print(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
+    log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
 
 sys.modules[__name__] = HAL
 
@@ -41,7 +41,6 @@ HAL.load = lambda path="session.json": memory.session.update(json.load(open(path
 
 HAL.name = "HAL"
 HAL.auto = False
-HAL.silent = False
 
 HAL.memory = memory
 def _search(*args, **kwargs):
@@ -83,7 +82,7 @@ HAL.memorize = _memorize
 
 def code_handler(step):
     import_variable = { "name": HAL.name }
-    c, request_input = code(step["prompt"], import_variable=import_variable, silent=HAL.silent)
+    c, request_input = code(step["prompt"], import_variable=import_variable)
     input_widgets = {}
     step["_code"] = c
     display(Markdown(f"---\n\n```python\n{get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```\n\n---"))
