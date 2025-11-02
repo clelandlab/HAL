@@ -2,46 +2,45 @@ import sys, json, random, string
 from google import genai
 import ipywidgets as widgets
 from IPython.display import display, Markdown
-import memory, utils
+import memory, utils, display
 from HAL_sort import sort
 from HAL_plan import plan
 from HAL_answer import answer
 from HAL_code import code, _exec, get_exec_import
-from display import log
-
-_show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
 
 handlers = {}
 
 def HAL(query=None):
     if query is not None and "open the pod bay doors" in query.casefold():
-        return _show("I'm sorry, Dave. I'm afraid I can't do that.")
+        return display.show("I'm sorry, Dave. I'm afraid I can't do that.")
     original_cost = memory.session.get("cost", 0)
     sequence = memory.session["sequence"]
     if query is not None:
         category = sort(query)
         if category == "question":
             res = answer(query, sequence)
-            return _show(res)
+            return display.show(res)
         sequence.append({ "user input": query })
     if len(sequence) == 0:
-        return _show("HAL is ready.")
+        return display.show("HAL is ready.")
     step = plan(sequence)
-    _show(step["prompt"])
+    display.show(step["prompt"])
     sequence.append(step)
     handlers["code"](step)
-    log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
+    display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
 
 sys.modules[__name__] = HAL
 
-def init(_config):
+def _init(_config):
     if isinstance(_config, dict):
         utils.config.update(_config)
     if isinstance(_config, str):
         utils.config.update(json.load(open(_config, "r")))
     memory.client = genai.Client(api_key=utils.config["GEMINI_API_KEY"])
     memory.load()
-HAL.init = init
+    display.init()
+    display.log("[HAL] Memory loaded.")
+HAL.init = _init
 
 HAL.reset = lambda: memory.session.update({ "sequence": [], "STATE": {} })
 HAL.save = lambda path="session.json": json.dump(memory.session, open(path, "w"), indent=2)
@@ -62,7 +61,7 @@ def _search(*args, **kwargs):
                 continue
             r += f"- **{k}**: {v}\n"
         r += f"\n\n{doc['content']}\n\n---\n\n"
-    return _show(r)
+    return display.show(r)
 HAL.search = _search
 
 def _memorize(content=None, meta={}):
