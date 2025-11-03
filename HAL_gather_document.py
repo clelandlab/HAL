@@ -13,6 +13,22 @@ def extract_json(text):
             text = text[:-3].strip()
     return json.loads(text)
 
+def filter_docs(gathered_docs, indices_to_remove, doc_ids_seen):
+    if not indices_to_remove:
+        return gathered_docs, doc_ids_seen
+    indices_to_remove_set = set(indices_to_remove)
+    new_gathered_docs = []
+    removed_ids = []
+    for i, doc in enumerate(gathered_docs):
+        if i in indices_to_remove_set:
+            removed_ids.append(doc['id'])
+        else:
+            new_gathered_docs.append(doc)
+    for doc_id in removed_ids:
+        if doc_id in doc_ids_seen:
+            doc_ids_seen.remove(doc_id)
+    return new_gathered_docs, doc_ids_seen
+
 def gather_document(query, recursive=False):
     log("[HAL] Gathering documents...", "Gathering Documents")
     system_instruction = """You are a researcher preparing documents for a coming task.
@@ -98,19 +114,8 @@ def gather_document(query, recursive=False):
             indices_to_remove = res_json.get("remove", [])
             new_queries = res_json.get("search", [])
             if indices_to_remove:
-                indices_to_remove_set = set(indices_to_remove)
-                new_gathered_docs = []
-                removed_ids = []
-                for i, doc in enumerate(gathered_docs):
-                    if i in indices_to_remove_set:
-                        removed_ids.append(doc['id'])
-                    else:
-                        new_gathered_docs.append(doc)
                 log(f"  - Removed docs: {indices_to_remove}")
-                gathered_docs = new_gathered_docs
-                for doc_id in removed_ids:
-                    if doc_id in doc_ids_seen:
-                        doc_ids_seen.remove(doc_id)
+                gathered_docs, doc_ids_seen = filter_docs(gathered_docs, indices_to_remove, doc_ids_seen)
             if new_queries:
                 for nq in new_queries:
                     if nq not in searched_queries:
