@@ -79,16 +79,17 @@ HAL.load = _load
 
 def _search(*args, **kwargs):
     res = memory.search(*args, **kwargs)
-    r = ""
+    texts = []
     for id, score in res:
         doc = memory.get(id)
-        r += f"### `{doc["id"]}`\n- **score**: {score}\n"
+        r = f"### `{doc["id"]}`\n- **score**: {score}\n"
         for k, v in doc.items():
             if k in ["id", "content", "embedding"]:
                 continue
             r += f"- **{k}**: {v}\n"
-        r += f"\n\n{doc['content']}\n\n---\n\n"
-    return display.show(r)
+        r += f"\n\n{doc['content']}\n\n"
+        texts.append(r)
+    return display.docs(texts)
 HAL.search = _search
 
 def _memorize(content=None, meta={}):

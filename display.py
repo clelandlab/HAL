@@ -40,3 +40,16 @@ def sequence(seq):
         tab.selected_index = 1 if len(tab.children) > 1 else 0
         sequence_accordion.children += (tab,)
         sequence_accordion.set_title(i, f"sequence [{i}] {step.get('_type', '')}")
+
+def docs(doc_texts):
+    n = len(doc_texts)
+    out = widgets.Output()
+    def on_slider_change(change):
+        i = change['new']
+        out.clear_output()
+        with out:
+            display(Markdown(doc_texts[i]))
+    slider = widgets.IntSlider(value=0, min=0, max=n-1, step=1, description=f'Docs ({n}):', continuous_update=False)
+    slider.observe(on_slider_change, names='value')
+    on_slider_change({'new': 0})
+    display(slider, out)
