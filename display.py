@@ -1,3 +1,4 @@
+import yaml
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 
@@ -32,7 +33,10 @@ def sequence(seq):
             content = step[key]
             if "code" in key:
                 content = f"```python\n{content}\n```"
+            if key == "_doc":
+                content = f"```yaml\n{yaml.dump(content)}\n```"
             tab.children += (get_markdown_output(content),)
             tab.set_title(len(tab.children) - 1, key)
+        tab.selected_index = 1 if len(tab.children) > 1 else 0
         sequence_accordion.children += (tab,)
         sequence_accordion.set_title(i, f"sequence [{i}] {step.get('_type', '')}")

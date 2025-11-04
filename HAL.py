@@ -24,10 +24,12 @@ def HAL(query=None):
         sequence.append({ "user input": query, "_type": "user input" })
     if len(sequence) == 0:
         return display.show("HAL is ready.")
+    if sequence[-1].get("_type", "") == "end":
+        return display.show("HAL session has ended. Please reset the session using `HAL.reset()`.")
     display.sequence(sequence)
-    res = plan(sequence)
-    step = { "prompt": res["prompt"] }
-    step["_type"] = res["type"]
+    step = { "_doc": {} }
+    res = plan(sequence, _doc=step["_doc"])
+    step["_type"], step["prompt"] = res["type"], res["prompt"]
     display.log(f"  > {step['_type']}")
     sequence.append(step)
     display.sequence(sequence)
@@ -118,7 +120,7 @@ handlers["end"] = end_handler
 
 def code_handler(step):
     import_variable = { "name": HAL.name }
-    c, request_input = code(step["prompt"], import_variable=import_variable)
+    c, request_input = code(step["prompt"], import_variable=import_variable, _doc=step["_doc"])
     input_widgets = {}
     step["_code"] = c
     display.show(f"```python\n{get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```")

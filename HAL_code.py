@@ -29,8 +29,9 @@ The following packages are already imported and ready to use. Do NOT import thes
 {get_exec_import(import_variable)}
 ```"""
 
-def code(prompt, import_variable={ "name": "HAL" }):
+def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
     docs = gather_document(prompt, recursive=True)
+    _doc["code"] = list(map(lambda d: d["id"], docs))
     log("[HAL] Coding...", "Coding")
     res = memory.client.models.generate_content(
         model="gemini-2.5-pro",

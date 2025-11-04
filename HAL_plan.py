@@ -17,8 +17,9 @@ If the task requested by the user is completed, set the step type to "end" and o
 
 You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
 
-def plan(sequence):
+def plan(sequence, _doc={}):
     docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step action. Do NOT attempt to implement anything or solve the problem. Focus on high-level plans and do NOT include documents that are too detailed. If you can find several related high-level plans, just return these plans. If you cannot find high-level plans, search some related documents.\n\nStep history:\n\n{sequence2text(sequence)}")
+    _doc["plan"] = list(map(lambda d: d["id"], docs))
     log("[HAL] Planning...", "Planning")
     config = types.GenerateContentConfig(
         temperature=0,
