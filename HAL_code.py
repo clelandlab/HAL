@@ -2,10 +2,8 @@ from google.genai import types
 import json
 import memory
 from HAL_gather_document import gather_document
-from utils import add_generative_cost, docs2text, evalStr, config
+from utils import add_generative_cost, docs2text, get_exec_import
 from display import log
-
-get_exec_import = lambda var: evalStr(config["EXEC_IMPORT"], var)
 
 system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write the code using the following documents:
 
@@ -19,7 +17,7 @@ You have an immutable global dictionary `STATE` that persists across multiple co
 
 If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. Contexts including user inputs will be passed in `STATE`. Note that all user inputs are strings.
 
-`STATE["SIGNAL"]` is a special variable for signal. SIGNAL should be a short string in natural language, describing the key outcome of the code execution. If there is no signal description in prompt, set it to "SUCCESS" or a descriptive error message.
+`STATE["SIGNAL"]` is a special variable for signal. SIGNAL should be a short string in natural language, describing the key outcome of the code execution. If there is no signal description in prompt, set it to "SUCCESS" or a descriptive error message. Do NOT use try-except blocks to wrap all the code, it is taken care of by the caller.
 
 Inspect the code segments in the provided documents, and think if they can be used in the code. You are strongly encouraged to use a global function `INVOKE` to directly run code segments. The invoked code will share the same `STATE`. You should invoke code segments to reduce code redundancy as much as possible. You can do extra processing before or after invoking.
 
@@ -52,12 +50,3 @@ def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
     add_generative_cost(res)
     r = json.loads(res.text)
     return r["code"], r.get("request_input", [])
-
-def _exec(code, STATE={}, import_variable={ "name": "HAL" }):
-    STATE["SIGNAL"] = ""
-    _code = get_exec_import(import_variable) + "\n\n" + code
-    try:
-        exec(_code, { "STATE": STATE }, { "STATE": STATE })
-        return None
-    except Exception as e:
-        return str(e)

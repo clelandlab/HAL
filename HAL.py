@@ -2,46 +2,52 @@ import sys, os, json, random, string
 from google import genai
 import ipywidgets as widgets
 from IPython.display import display as _display
-import memory, utils, display
+import memory, utils, display, run
 from HAL_sort import sort
 from HAL_plan import plan
 from HAL_answer import answer
-from HAL_code import code, _exec, get_exec_import
+from HAL_code import code
 
 handlers = {}
 
 def HAL(query=None):
     if query is not None and "open the pod bay doors" in query.casefold():
         return display.show("I'm sorry, Dave. I'm afraid I can't do that.")
-    original_cost = memory.session.get("cost", 0)
-    log_cost = lambda: display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
-    sequence = memory.session["sequence"]
-    if query is not None:
-        category = sort(query)
-        if category == "question":
-            res = answer(query, sequence)
-            log_cost()
-            return display.show(res)
-        sequence.append({ "user input": query, "_type": "user input" })
-    if len(sequence) == 0:
-        return display.show("HAL is ready.")
-    if sequence[-1].get("_type", "") == "end":
-        return display.show("HAL session has ended. Please reset the session using `HAL.reset()`.")
-    display.sequence(sequence)
-    step = { "_doc": {} }
-    res = plan(sequence, _doc=step["_doc"])
-    step["_type"], step["prompt"] = res["type"], res["prompt"]
-    display.log(f"  > {step['_type']}")
-    sequence.append(step)
-    display.sequence(sequence)
-    handlers[step["_type"]](step)
-    log_cost()
-    display.sequence(sequence)
+    while True:
+        original_cost = memory.session.get("cost", 0)
+        log_cost = lambda: display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
+        sequence = memory.session["sequence"]
+        if query is not None:
+            category = sort(query)
+            if category == "question":
+                res = answer(query, sequence)
+                log_cost()
+                return display.show(res)
+            sequence.append({ "user input": query, "_type": "user input" })
+        if len(sequence) == 0:
+            return display.show("HAL is ready.")
+        if sequence[-1].get("_type", "") == "end":
+            return display.show("HAL session has ended. Please reset the session using `HAL.reset()`.")
+        display.sequence(sequence)
+        step = { "_doc": {} }
+        res = plan(sequence, _doc=step["_doc"])
+        step["_type"], step["prompt"] = res["type"], res["prompt"]
+        display.log(f"  > {step['_type']}")
+        sequence.append(step)
+        display.sequence(sequence)
+        handlers[step["_type"]](step)
+        log_cost()
+        display.sequence(sequence)
+        if HAL.auto <= 0:
+            HAL.auto = 0
+            break
+        HAL.auto -= 1
+        query = None
 
 sys.modules[__name__] = HAL
 
 HAL.name = "HAL"
-HAL.auto = False
+HAL.auto = 0
 HAL.memory = memory
 
 # Following are HAL methods
@@ -58,12 +64,14 @@ def _init(name, _config=None):
     display.init()
     memory.load()
     display.log("[HAL] Ready.")
+    return memory.session["STATE"], run.invoke
 HAL.init = _init
 
 def _reset():
     memory.session.update({ "cost": 0.0, "sequence": [], "STATE": {} })
     display.log("[HAL] Session reset.")
     display.sequence(memory.session.get("sequence", []))
+    return memory.session["STATE"], run.invoke
 HAL.reset = _reset
 
 def _save(path="session.json"):
@@ -125,7 +133,7 @@ def code_handler(step):
     c, request_input = code(step["prompt"], import_variable=import_variable, _doc=step["_doc"])
     input_widgets = {}
     step["_code"] = c
-    display.show(f"```python\n{get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```")
+    display.show(f"```python\n{utils.get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```")
     for v in request_input:
         print(f'- input: {v["description"]}')
         w = widgets.Text(value=v.get("default", ""), description=v["key"])
@@ -136,7 +144,7 @@ def code_handler(step):
         with output:
             for k in input_widgets:
                 memory.session["STATE"][k] = input_widgets[k].value
-            err = _exec(c, memory.session["STATE"], import_variable=import_variable)
+            err = run.execute(c, import_variable=import_variable)
             step["SIGNAL"] = memory.session["STATE"].get("SIGNAL", "")
             if err is not None:
                 print("Execution Error: ", err)

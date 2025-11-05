@@ -16,6 +16,8 @@ def sequence2text(sequence):
 
 evalStr = lambda s, var: eval(f"f'''{s}'''", None, var)
 
+get_exec_import = lambda var: evalStr(config["EXEC_IMPORT"], var)
+
 prices = {
     "gemini-embedding-001": 0.15/1e6,
     "gemini-2.5-pro": (1.25/1e6, 10/1e6),
