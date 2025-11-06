@@ -49,6 +49,7 @@ sys.modules[__name__] = HAL
 HAL.name = "HAL"
 HAL.auto = 0
 HAL.memory = memory
+HAL.display = display
 
 # Following are HAL methods
 
