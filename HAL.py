@@ -38,7 +38,7 @@ def HAL(query=None):
         handlers[step["_type"]](step)
         log_cost()
         display.sequence(sequence)
-        if HAL.auto <= 0:
+        if HAL.auto <= 0 or step["_type"] == "end":
             HAL.auto = 0
             break
         HAL.auto -= 1
