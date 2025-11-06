@@ -52,6 +52,8 @@ HAL.memory = memory
 
 # Following are HAL methods
 
+_invoke = lambda name, import_variable={}: run.invoke(name, import_variable={ "name": HAL.name, **import_variable })
+
 def _init(name, _config=None):
     HAL.name = name
     if _config is None:
@@ -64,14 +66,14 @@ def _init(name, _config=None):
     display.init()
     memory.load()
     display.log("[HAL] Ready.")
-    return memory.session["STATE"], run.invoke
+    return memory.session["STATE"], _invoke
 HAL.init = _init
 
 def _reset():
     memory.session.update({ "cost": 0.0, "sequence": [], "STATE": {} })
     display.log("[HAL] Session reset.")
     display.sequence(memory.session.get("sequence", []))
-    return memory.session["STATE"], run.invoke
+    return memory.session["STATE"], _invoke
 HAL.reset = _reset
 
 def _save(path="session.json"):
@@ -144,11 +146,12 @@ def code_handler(step):
         with output:
             for k in input_widgets:
                 memory.session["STATE"][k] = input_widgets[k].value
-            err = run.execute(c, import_variable=import_variable)
-            step["SIGNAL"] = memory.session["STATE"].get("SIGNAL", "")
-            if err is not None:
+            try:
+                run.execute(c, import_variable=import_variable)
+                step["SIGNAL"] = memory.session["STATE"].get("SIGNAL", "")
+            except Exception as err:
+                step["SIGNAL"] = f"Runtime Error: {str(err)}"
                 print("Execution Error: ", err)
-                return
     auto_exec = HAL.auto and len(request_input) == 0
     button = widgets.Button(description="Auto Executed" if auto_exec else "Execute", button_style='' if auto_exec else 'primary')
     button.on_click(trigger_exec)

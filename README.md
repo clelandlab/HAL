@@ -15,15 +15,18 @@ Create a `config.json` with the following content:
 ## API
 
 ```python
-HAL.init("Name", _config=None)
+# initialization
+STATE, INVOKE = HAL.init("Name", _config=None)
+
+# main interface
 HAL(query=None)
 
 # properties
 HAL.name = "HAL"
-HAL.auto = False
+HAL.auto = 0
 
 # session operations
-HAL.reset()
+STATE, INVOKE = HAL.reset()
 HAL.save(path="session.json")
 HAL.load(path="session.json")
 
