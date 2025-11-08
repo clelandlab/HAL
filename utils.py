@@ -10,13 +10,13 @@ def docs2text(docs):
     return res
 
 def sequence2text(sequence):
-    res = "---\n\n"
+    res = ""
     for i, step in enumerate(sequence):
-        res += f"Step {i}:\n"
+        res += f"--- Step {i} ---\n\n"
         for k, v in step.items():
             if k[0] != "_":
                 res += f"{k}: {v}\n"
-        res += "\n---\n\n"
+    res += "--- End of Steps ---"
     return res
 
 evalStr = lambda s, var: eval(f"f'''{s}'''", None, var)

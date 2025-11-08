@@ -37,7 +37,7 @@ The following packages are already imported and ready to use. Do NOT import thes
 ```"""
 
 def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
-    docs = gather_document(prompt, recursive=True)
+    docs = gather_document(prompt)
     _doc["code"] = list(map(lambda d: d["id"], docs))
     log("[HAL] Coding...", "Coding")
     res = memory.client.models.generate_content(
