@@ -7,7 +7,7 @@ from display import log
 
 system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write the code using the given documents.
 
-## Coding Guidelines
+# Coding Guidelines
 
 The code should be runnable. Absolutely NO comments, NO explanations, NO side behaviors like printing messages.
 
@@ -24,11 +24,11 @@ Do NOT use try-except blocks to wrap all the code, it is taken care of by the ca
 
 If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. Contexts including user inputs will be passed in `STATE`. Note that all user inputs will be strings.
 
-## Documents
+# Documents
 
 {docs2text(docs)}
 
-## Imports
+# Imports
 
 The following packages are already imported and ready to use. Do NOT import these packages again!
 
