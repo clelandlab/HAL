@@ -2,7 +2,12 @@ import memory
 
 config = {}
 
-docs2text = lambda docs: "\n\n---\n\n\n".join(map(lambda x: x["content"], docs))
+def docs2text(docs):
+    res = ""
+    for i, doc in enumerate(docs):
+        res += f"--- Document {i} ---\n\n{doc['content']}\n\n"
+    res += "--- End of Documents ---"
+    return res
 
 def sequence2text(sequence):
     res = "---\n\n"

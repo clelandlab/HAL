@@ -144,6 +144,7 @@ def code_handler(step):
         _display(w)
     output = widgets.Output()
     def trigger_exec(b):
+        display.log(f"[HAL] Executing...", "Executing")
         with output:
             for k in input_widgets:
                 memory.session["STATE"][k] = input_widgets[k].value

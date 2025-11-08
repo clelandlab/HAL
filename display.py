@@ -16,8 +16,8 @@ def init():
     display(log_accordion)
     display(sequence_accordion)
 
-def log(content, status=""):
-    log_accordion.set_title(0, f"[HAL] {status}")
+def log(content, status="Idle"):
+    log_accordion.set_title(0, f"Status [HAL] {status}")
     with log_output:
         print(content)
 
