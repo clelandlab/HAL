@@ -2,11 +2,11 @@ import sys, os, json, random, string
 from google import genai
 import ipywidgets as widgets
 from IPython.display import display as _display
-import memory, utils, display, run
-from HAL_sort import sort
-from HAL_plan import plan
-from HAL_answer import answer
-from HAL_code import code
+from . import memory, utils, display, run
+from .HAL_sort import sort
+from .HAL_plan import plan
+from .HAL_answer import answer
+from .HAL_code import code
 
 handlers = {}
 
@@ -58,7 +58,7 @@ _invoke = lambda name, import_variable={}: run.invoke(name, import_variable={ "n
 def _init(name, _config=None):
     HAL.name = name
     if _config is None:
-        _config = os.path.dirname(os.path.abspath(__file__)) + '/config.json'
+        _config = os.path.expanduser("~/HAL/config.json")
     if isinstance(_config, dict):
         utils.config.update(_config)
     if isinstance(_config, str):

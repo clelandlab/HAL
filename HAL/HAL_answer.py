@@ -1,8 +1,8 @@
 from google.genai import types
-import memory
-from HAL_gather_document import gather_document
-from utils import add_generative_cost, docs2text, sequence2text
-from display import log
+from . import memory
+from .HAL_gather_document import gather_document
+from .utils import add_generative_cost, docs2text, sequence2text
+from .display import log
 
 def answer(prompt, sequence):
     docs = gather_document(prompt)

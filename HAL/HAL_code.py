@@ -1,9 +1,9 @@
 from google.genai import types
 import json
-import memory
-from HAL_gather_document import gather_document
-from utils import add_generative_cost, docs2text, get_exec_import
-from display import log
+from . import memory
+from .HAL_gather_document import gather_document
+from .utils import add_generative_cost, docs2text, get_exec_import
+from .display import log
 
 system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write the code using the given documents.
 

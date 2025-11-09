@@ -1,9 +1,9 @@
 from google.genai import types
 import json
-import memory
-from HAL_gather_document import gather_document
-from utils import add_generative_cost, docs2text, sequence2text
-from display import log
+from . import memory
+from .HAL_gather_document import gather_document
+from .utils import add_generative_cost, docs2text, sequence2text
+from .display import log
 
 system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
 

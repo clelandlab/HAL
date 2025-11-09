@@ -1,8 +1,8 @@
 from google.genai import types
 import json
-import memory
-from utils import add_generative_cost
-from display import log
+from . import memory
+from .utils import add_generative_cost
+from .display import log
 
 system_instruction = '''You are an expert at classifying user prompts into categories. Given a user prompt, classify it into one of the following categories:
 

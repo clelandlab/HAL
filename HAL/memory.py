@@ -1,7 +1,7 @@
 import time, json, gzip, hashlib
 import numpy as np
-from display import log
-from utils import add_embedding_cost, config
+from .display import log
+from .utils import add_embedding_cost, config
 
 session = {
     "cost": 0.0,

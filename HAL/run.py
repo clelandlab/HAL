@@ -1,6 +1,6 @@
 import re
-import memory
-from utils import get_exec_import
+from . import memory
+from .utils import get_exec_import
 
 def execute(code, import_variable={ "name": "HAL" }):
     STATE = memory.session["STATE"]

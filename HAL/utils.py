@@ -1,4 +1,4 @@
-import memory
+from . import memory
 
 config = {}
 

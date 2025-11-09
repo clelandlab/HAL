@@ -1,8 +1,8 @@
 from google.genai import types
-import memory
+from . import memory
 import json
-from utils import docs2text, add_generative_cost
-from display import log
+from .utils import docs2text, add_generative_cost
+from .display import log
 
 system_instruction = f"""You are a researcher preparing documents for a coming task. Your goal is to gather all relevant documents from the database. You will be shown the main task, the documents gathered so far (each with an index), and a list of queries already searched.
 
