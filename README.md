@@ -16,7 +16,7 @@ Create a `config.json` with the following content:
 
 ```python
 # initialization
-STATE, INVOKE = HAL.init("Name", _config=None)
+HAL.init("Name", _config=None)
 
 # main interface
 HAL(query=None)
@@ -26,7 +26,7 @@ HAL.name = "HAL"
 HAL.auto = 0
 
 # session operations
-STATE, INVOKE = HAL.reset()
+HAL.reset()
 HAL.save(path="session.json")
 HAL.load(path="session.json")
 

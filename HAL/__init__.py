@@ -58,7 +58,7 @@ _invoke = lambda name, import_variable={}: run.invoke(name, import_variable={ "n
 def _init(name, _config=None):
     HAL.name = name
     if _config is None:
-        _config = os.path.expanduser("~/HAL/config.json")
+        _config = os.path.join(os.path.dirname(__file__), "../config.json")
     if isinstance(_config, dict):
         utils.config.update(_config)
     if isinstance(_config, str):
@@ -67,14 +67,18 @@ def _init(name, _config=None):
     display.init()
     memory.load()
     display.log("[HAL] Ready.")
-    return memory.session["STATE"], _invoke
+    main_namespace = sys.modules.get('__main__')
+    main_namespace.STATE = memory.session["STATE"]
+    main_namespace.INVOKE = _invoke
 HAL.init = _init
 
 def _reset():
     memory.session.update({ "cost": 0.0, "sequence": [], "STATE": {} })
     display.log("[HAL] Session reset.")
     display.sequence(memory.session.get("sequence", []))
-    return memory.session["STATE"], _invoke
+    main_namespace = sys.modules.get('__main__')
+    main_namespace.STATE = memory.session["STATE"]
+    main_namespace.INVOKE = _invoke
 HAL.reset = _reset
 
 def _save(path="session.json"):
