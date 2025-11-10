@@ -63,6 +63,11 @@ HAL.code = code
 
 _invoke = lambda name, import_variable={}: run.invoke(name, import_variable={ "name": HAL.name, **import_variable })
 
+def _export_ctx():
+    main_namespace = sys.modules.get('__main__')
+    main_namespace.STATE = memory.session["STATE"]
+    main_namespace.INVOKE = _invoke
+
 def _init(name, _config=None):
     HAL.name = name
     if _config is None:
@@ -75,18 +80,14 @@ def _init(name, _config=None):
     display.init()
     memory.load()
     display.log("[HAL] Ready.")
-    main_namespace = sys.modules.get('__main__')
-    main_namespace.STATE = memory.session["STATE"]
-    main_namespace.INVOKE = _invoke
+    _export_ctx()
 HAL.init = _init
 
 def _reset():
     memory.session.update({ "cost": 0.0, "sequence": [], "STATE": {} })
     display.log("[HAL] Session reset.")
     display.sequence(memory.session.get("sequence", []))
-    main_namespace = sys.modules.get('__main__')
-    main_namespace.STATE = memory.session["STATE"]
-    main_namespace.INVOKE = _invoke
+    _export_ctx()
 HAL.reset = _reset
 
 def _save(path="session.json"):
@@ -98,6 +99,7 @@ def _load(path="session.json"):
     display.log(f"[HAL] Session loaded from {path}")
     memory.session.update(json.load(open(path, "r")))
     display.sequence(memory.session.get("sequence", []))
+    _export_ctx()
 HAL.load = _load
 
 def _search(*args, **kwargs):
