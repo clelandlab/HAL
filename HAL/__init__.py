@@ -3,6 +3,7 @@ from google import genai
 import ipywidgets as widgets
 from IPython.display import display as _display
 from . import memory, utils, display, run
+from .HAL_gather_document import gather_document
 from .HAL_sort import sort
 from .HAL_plan import plan
 from .HAL_answer import answer
@@ -48,8 +49,15 @@ sys.modules[__name__] = HAL
 
 HAL.name = "HAL"
 HAL.auto = 0
+
 HAL.memory = memory
 HAL.display = display
+
+HAL.gather_document = gather_document
+HAL.sort = sort
+HAL.plan = plan
+HAL.answer = answer
+HAL.code = code
 
 # Following are HAL methods
 
@@ -140,6 +148,7 @@ def code_handler(step):
     c, request_input = code(step["prompt"], import_variable=import_variable, _doc=step["_doc"])
     input_widgets = {}
     step["_code"] = c
+    display.sequence(memory.session["sequence"])
     display.show(f"```python\n{utils.get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```")
     for v in request_input:
         print(f'- input: {v["description"]}')

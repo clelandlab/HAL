@@ -16,6 +16,7 @@ def sequence2text(sequence):
         for k, v in step.items():
             if k[0] != "_":
                 res += f"{k}: {v}\n"
+        res += "\n"
     res += "--- End of Steps ---"
     return res
 

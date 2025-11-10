@@ -9,7 +9,7 @@ system_instruction = lambda docs: f"""You are a research manager leading a team.
 
 Your team members can access all the documents, but NOT the step history. Make sure to provide sufficient details in the prompt to make your team members work without the step history, like the detailed information from user input.
 
-Do NOT repeat document content in the prompt. Specify relevant documents so that your team members can search for them. It's not recommended to refer to plan documents unless necessary.
+Do NOT repeat document content in the prompt. Specify relevant documents title or keyword so that your team members can search for them. It's not recommended to refer to plan documents unless necessary. Do NOT use document indices, they are not accessible to your team members.
 
 SIGNAL is a special string variable that describes the key outcome of the step. It can include some critical numbers like goodness of fitting, or short messages like "SUCCESS" or error. Provide a SIGNAL description in your prompt, so that your team can present the result to you. 
 
@@ -20,7 +20,7 @@ If the task requested by the user is completed, set the step type to "end" and o
 You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
 
 def plan(sequence, _doc={}):
-    docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step action. Do NOT attempt to implement anything or solve the problem. Focus on high-level plans and do NOT include documents that are too detailed. If you can find several related high-level plans, just return these plans. If you cannot find high-level plans, search some related documents.\n\nStep history:\n\n{sequence2text(sequence)}")
+    docs = gather_document(f"Search for documents related to high-level plans to help make plans for the next step action. Do NOT attempt to implement anything or solve the problem. **ONLY focus on high-level plans.** Do NOT include documents that are too detailed.\n\nIf you can find related high-level plans, just return these plans. Otherwise, search for a few related documents.\n\nStep history:\n\n{sequence2text(sequence)}")
     _doc["plan"] = list(map(lambda d: d["id"], docs))
     log("[HAL] Planning...", "Planning")
     config = types.GenerateContentConfig(
