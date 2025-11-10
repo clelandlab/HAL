@@ -8,10 +8,8 @@ system_instruction = f"""You are a researcher preparing documents for a coming t
 
 Your task is to:
 1. **Filter:** Review all gathered documents. Identify the documents that are completely irrelevant or useless for the task. List their *indices* in the "remove" key.
-2. **Search:** Review the task and the *relevant* documents. Provide new search queries to find missing information or to recursively find documents/tools/methods mentioned in the relevant documents. **Do NOT search for methods in common Python packages like "scipy", "numpy", "matplotlib", "yaml", etc. Do NOT search queries that are already in the "Searched Queries" list.**
-3. **Stop:** If no more searches are needed, provide an empty list for "search".
-
-Before outputting, ensure no searched queries are in the "search" list. Not all information are in the database. Stop searching wisely.
+2. **Stop:** If gathered documents are sufficient or relevant queries are already searched, provide an empty list for "search".
+3. **Search:** Review the task and the *relevant* documents. Provide new search queries to find missing information or to recursively find documents/tools/methods mentioned in the relevant documents. **Do NOT search for methods in common Python packages like "scipy", "numpy", "matplotlib", "yaml", etc. Do NOT search queries that are already in the "Searched Queries" list.**
 """
 
 user_content = lambda task, docs, query_section: f"""# Task:
