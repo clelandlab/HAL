@@ -34,11 +34,13 @@ HAL.load(path="session.json")
 HAL.search(query)
 HAL.memorize(content, meta={ "source": HAL.name })
 
-# low-level memory operations
-id = HAL.memory.add(content, meta={})
-doc = HAL.memory.get(doc_id)
-HAL.memory.delete(doc_id)
-docs, scores = HAL.memory.search(q, maxn=5, cutoff_gradient=0.03, threshold=0.6):
-HAL.memory.load()
-HAL.memory.save()
+# low-level components
+HAL.memory
+HAL.display
+# Agents
+HAL.gather_document
+HAL.sort
+HAL.plan
+HAL.answer
+HAL.code
 ```
