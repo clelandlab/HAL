@@ -11,8 +11,7 @@ system_instruction = lambda docs, import_variable: f"""You are a world class pro
 
 The code should be runnable. Absolutely NO comments, NO explanations, NO side behaviors like printing messages. Do NOT use try-except to wrap all the code, it is taken care of by the caller.
 
-In addition to all the imported packages below, you have two global variables: `STATE` and `INVOKE`.
-
+In addition to all the imported packages below, you have two global variables: `STATE` and `INVOKE`:
 1. `STATE` is a dictionary that persists across multiple code executions. Use it to store any variables or data that need to be retained or exported. Note that you cannot assign to `STATE`, you can only modify its contents.
   - `STATE["SIGNAL"]` is a special variable for signal. SIGNAL should be a short string in natural language, describing the key outcome of the code execution. If there is no signal description in prompt, set it to "SUCCESS" or a descriptive error message.
 2. `INVOKE` is a function that can be used to directly run other code segments or steps. `INVOKE("Code Segment [ID]")` can invoke a code segment. It's highly recommended to use `INVOKE` instead of repeating code segments to reduce code redundancy as much as possible. You can do extra processing before or after invoking.
