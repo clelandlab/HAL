@@ -24,7 +24,6 @@ def plan(sequence, _doc={}):
     _doc["plan"] = list(map(lambda d: d["id"], docs))
     log("[HAL] Planning...", "Planning")
     config = types.GenerateContentConfig(
-        temperature=0,
         system_instruction=system_instruction(docs),
         response_mime_type="application/json",
         response_schema=types.Schema(type=types.Type.OBJECT, required=["type", "prompt"], properties={
@@ -33,7 +32,7 @@ def plan(sequence, _doc={}):
         })
     )
     res = memory.client.models.generate_content(
-        model="gemini-2.5-pro",
+        model="gemini-3-pro-preview",
         config=config,
         contents=f"Step history:\n\n{sequence2text(sequence)}"
     )

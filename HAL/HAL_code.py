@@ -14,7 +14,7 @@ The code should be runnable. Absolutely NO comments, NO explanations, NO side be
 In addition to all the imported packages below, you have two global variables: `STATE` and `INVOKE`:
 1. `STATE` is a dictionary that persists across multiple code executions. Use it to store any variables or data that need to be retained or exported. Note that you cannot assign to `STATE`, you can only modify its contents.
   - `STATE["SIGNAL"]` is a special variable for signal. SIGNAL should be a short string in natural language, describing the key outcome of the code execution. If there is no signal description in prompt, set it to "SUCCESS" or a descriptive error message.
-2. `INVOKE` is a function that can be used to directly run other code segments or steps. `INVOKE("Code Segment [ID]")` can invoke a code segment. It's highly recommended to use `INVOKE` instead of repeating code segments to reduce code redundancy as much as possible. You can do extra processing before or after invoking.
+2. `INVOKE` is a function that can be used to directly run other code segments or steps. `INVOKE("Code Segment [ID]")` can invoke a code segment in documents. When possible, you should use `INVOKE` instead of repeating code segments in documents.
   - Sometimes you may be instructed to invoke a number, e.g., `INVOKE(3)`, when the manager decides to run a previous step. Faithfully follow the instruction to invoke the specified step.
 
 If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. Contexts including user inputs will be passed in `STATE`. Note that all user inputs will be strings.
@@ -36,9 +36,8 @@ def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
     _doc["code"] = list(map(lambda d: d["id"], docs))
     log("[HAL] Coding...", "Coding")
     res = memory.client.models.generate_content(
-        model="gemini-2.5-pro",
+        model="gemini-3-pro-preview",
         config=types.GenerateContentConfig(
-            temperature=0,
             response_mime_type="application/json",
             response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={
                 "code": types.Schema(type=types.Type.STRING),

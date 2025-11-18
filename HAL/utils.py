@@ -27,7 +27,8 @@ get_exec_import = lambda var: evalStr(config["EXEC_IMPORT"], var)
 prices = {
     "gemini-embedding-001": 0.15/1e6,
     "gemini-2.5-pro": (1.25/1e6, 10/1e6),
-    "gemini-2.5-flash": (0.3/1e6, 2.5/1e6)
+    "gemini-2.5-flash": (0.3/1e6, 2.5/1e6),
+    "gemini-3-pro-preview": (2/1e6, 12/1e6)
 }
 
 def add_embedding_cost(res):
@@ -38,6 +39,8 @@ def add_embedding_cost(res):
 def add_generative_cost(res):
     v = res.model_version
     u = res.usage_metadata
+    if v not in prices:
+        print(f"[HAL] Warning: model version {v} not found in prices list. Cost estimation will be inaccurate.")
     p = prices.get(v, (0, 0))
     input_token_count = u.prompt_token_count
     output_token_count = u.total_token_count - u.prompt_token_count
