@@ -8,8 +8,8 @@ system_instruction = f"""You are a researcher preparing documents for a coming t
 
 Your task is to:
 1. **Filter:** Review all gathered documents. Identify the documents that are completely irrelevant or useless for the task. List their *indices* in the "remove" key.
-2. **Stop:** If gathered documents are sufficient or relevant queries are already searched, provide an empty list for "search". You must provide search queries if all documents are removed in the previous step.
-3. **Search:** Review the task and the *relevant* documents. Provide new search queries to find missing information or to recursively find documents/tools/methods mentioned in the relevant documents. **Do NOT search for methods in common Python packages like "scipy", "numpy", "matplotlib", "yaml", etc. Do NOT search queries that are already in the "Searched Queries" list.**
+2. **Stop:** If gathered documents are sufficient or relevant queries are already searched, provide an empty list for "query". You must provide search queries if all documents are removed in the previous step.
+3. **Search:** Review the task and the *relevant* documents. Provide new search queries to find missing information or to recursively find documents/tools/methods mentioned in the relevant documents. If the task requires detailed implementation, you MUST search for ALL things refered by current documents. **Do NOT search for methods in common Python packages like "scipy", "numpy", "matplotlib", "yaml", etc. Absolutely do NOT repeat the provided searched queries.**
 """
 
 user_content = lambda task, docs, query_section: f"""# Task:
@@ -18,7 +18,7 @@ user_content = lambda task, docs, query_section: f"""# Task:
 
 # Searched Queries:
 
-The following queries have already been searched and should NOT be in the "search" output:
+The following queries must NOT be output:
 
 {query_section}
 
@@ -46,9 +46,9 @@ def gather_document(query, max_iterations=6):
             temperature=0,
             thinking_config=types.ThinkingConfig(thinking_budget=0),
             response_mime_type="application/json",
-            response_schema=types.Schema(type=types.Type.OBJECT, required=["remove", "search"], properties={
+            response_schema=types.Schema(type=types.Type.OBJECT, required=["remove", "query"], properties={
                 "remove": types.Schema(type=types.Type.ARRAY, items=types.Schema(type=types.Type.INTEGER)),
-                "search": types.Schema(type=types.Type.ARRAY, items=types.Schema(type=types.Type.STRING))}),
+                "query": types.Schema(type=types.Type.ARRAY, items=types.Schema(type=types.Type.STRING))}),
             system_instruction=system_instruction
         )
         res = memory.client.models.generate_content(
@@ -58,7 +58,7 @@ def gather_document(query, max_iterations=6):
         add_generative_cost(res)
         res_json = json.loads(res.text)
         doc_ids = filter_docs(res_json.get("remove", []), doc_ids)
-        new_queries = res_json.get("search", [])
+        new_queries = res_json.get("query", [])
         for q in new_queries:
             search(q)
             searched_queries.append(q)
