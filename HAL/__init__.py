@@ -148,28 +148,24 @@ handlers["end"] = end_handler
 def code_handler(step):
     import_variable = { "name": HAL.name }
     c, request_input = code(step["prompt"], import_variable=import_variable, _doc=step["_doc"])
-    input_widgets = {}
     step["_code"] = c
     display.sequence(memory.session["sequence"])
     display.show(f"```python\n{utils.get_exec_import(import_variable)}\n```\n\n```python\n{c}\n```")
-    for v in request_input:
-        print(f'- input: {v["description"]}')
-        w = widgets.Text(value=v.get("default", ""), description=v["key"])
-        input_widgets[v["key"]] = w
-        _display(w)
     output = widgets.Output()
+    if request_input is not None:
+        display.new_cell(f"# Request user input:\n\n{request_input}")
+        with output:
+            print("Requesting user input. Please run the following cell to provide necessary inputs.")
     def trigger_exec(b):
         display.log(f"[HAL] Executing...", "Executing")
         with output:
-            for k in input_widgets:
-                memory.session["STATE"][k] = input_widgets[k].value
             try:
                 run.execute(c, import_variable=import_variable)
                 step["SIGNAL"] = memory.session["STATE"].get("SIGNAL", "")
             except Exception as err:
                 step["SIGNAL"] = f"Runtime Error: {str(err)}"
                 print("Execution Error: ", err)
-    auto_exec = HAL.auto and len(request_input) == 0
+    auto_exec = HAL.auto and request_input is None
     button = widgets.Button(description="Auto Executed" if auto_exec else "Execute", button_style='' if auto_exec else 'primary')
     button.on_click(trigger_exec)
     _display(button, output)

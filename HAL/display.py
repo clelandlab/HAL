@@ -1,6 +1,7 @@
 import yaml
 import ipywidgets as widgets
 from IPython.display import display, Markdown
+from IPython.core.getipython import get_ipython
 
 log_output = widgets.Output(layout={'height': '300px', 'overflow_y': 'auto'})
 log_accordion = widgets.Accordion(children=[log_output], titles=["[HAL]"])
@@ -22,6 +23,9 @@ def log(content, status="Idle"):
         print(content)
 
 show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
+
+def new_cell(content):
+    get_ipython().set_next_input(content, replace=False)
 
 def sequence(seq):
     sequence_accordion.children = []

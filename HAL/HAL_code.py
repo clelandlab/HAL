@@ -17,7 +17,7 @@ In addition to all the imported packages below, you have two global variables: `
 2. `INVOKE` is a function that can be used to directly run other code segments or steps. `INVOKE("Code Segment [ID]")` can invoke a code segment in documents. When possible, you should use `INVOKE` instead of repeating code segments in documents.
   - Sometimes you may be instructed to invoke a number, e.g., `INVOKE(3)`, when the manager decides to run a previous step. Faithfully follow the instruction to invoke the specified step.
 
-If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. Contexts including user inputs will be passed in `STATE`. Note that all user inputs will be strings.
+If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. `request_input` should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
 
 # Documents
 
@@ -41,15 +41,12 @@ def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
             response_mime_type="application/json",
             response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={
                 "code": types.Schema(type=types.Type.STRING),
-                "request_input": types.Schema(type=types.Type.ARRAY, items=types.Schema(type=types.Type.OBJECT, required=["key", "default", "description"], properties={
-                    "key": types.Schema(type=types.Type.STRING),
-                    "default": types.Schema(type=types.Type.STRING),
-                    "description": types.Schema(type=types.Type.STRING, description="a short phrase describing the input")
-                })) }),
+                "request_input": types.Schema(type=types.Type.STRING, description="some lines of code assigning values to variables in STATE. This will be modified by the user.")
+            }),
             system_instruction=system_instruction(docs, import_variable)
         ),
         contents=prompt
     )
     add_generative_cost(res)
     r = json.loads(res.text)
-    return r["code"], r.get("request_input", [])
+    return r["code"], r.get("request_input")
