@@ -22,7 +22,6 @@ HAL.init("Name", _config=None)
 HAL(query=None)
 
 # properties
-HAL.name = "HAL"
 HAL.auto = 0
 
 # session operations

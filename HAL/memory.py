@@ -4,6 +4,7 @@ from .display import log
 from .utils import add_embedding_cost, config
 
 session = {
+    "name": "HAL",
     "cost": 0.0,
     "sequence": [],
     "STATE": {}
