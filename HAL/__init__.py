@@ -170,6 +170,8 @@ def code_handler(step):
             except Exception as err:
                 STATE["SIGNAL"] = f"Runtime Error: {str(err)}"
                 print("Execution Error: ", str(err))
+        display.log(f"[HAL] Execution completed with SIGNAL: {STATE['SIGNAL']}")
+        display.sequence(memory.session["sequence"])
     auto_exec = HAL.auto and request_input is None
     button = widgets.Button(description="Auto Executed" if auto_exec else "Execute", button_style='' if auto_exec else 'primary')
     button.on_click(trigger_exec)
