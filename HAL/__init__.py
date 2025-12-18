@@ -1,4 +1,4 @@
-import sys, os, json, random, string
+import sys, os, json, random, string, time
 from google import genai
 import ipywidgets as widgets
 from IPython.display import display as _display
@@ -16,6 +16,7 @@ def HAL(query=None):
         return display.show("I'm sorry, Dave. I'm afraid I can't do that.")
     while True:
         original_cost = memory.session.get("cost", 0)
+        start_time = time.time()
         log_cost = lambda: display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
         sequence = memory.session["sequence"]
         if query is not None:
@@ -40,6 +41,7 @@ def HAL(query=None):
         sequence.append(step)
         display.sequence(sequence)
         handlers[step["_type"]](step)
+        display.log(f"[HAL] Step time: {time.time()-start_time:.2f} s")
         log_cost()
         display.sequence(sequence)
         if HAL.auto <= 0 or step["_type"] == "end":

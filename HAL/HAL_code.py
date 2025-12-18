@@ -5,7 +5,13 @@ from .HAL_gather_document import gather_document
 from .utils import add_generative_cost, docs2text, get_exec_import
 from .display import log
 
-system_instruction = lambda docs, import_variable: f"""You are a world class programming AI that generates Python code based on requirements. Write concise code using the given documents.
+def state_type2text(STATE):
+    s = ""
+    for k, v in STATE.items():
+        s += f"- `{k}`: ({type(v).__name__})\n"
+    return s
+
+system_instruction = lambda docs, import_variable, STATE: f"""You are a world class programming AI that generates Python code based on requirements. Write concise code using the given documents.
 
 # Coding Guidelines
 
@@ -18,6 +24,12 @@ In addition to all the imported packages below, you have two global variables: `
   - Sometimes you may be instructed to invoke a number, e.g., `INVOKE(3)`, when the manager decides to run a previous step. Faithfully follow the instruction to invoke the specified step.
 
 If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. `request_input` should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
+
+# Current STATE Variables
+
+Not every variable in STATE is relevant to your task. Only use the variables specified in the prompt or necessary for the code.
+
+{state_type2text(STATE)}
 
 # Documents
 
@@ -44,7 +56,7 @@ def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
                 "code": types.Schema(type=types.Type.STRING),
                 "request_input": types.Schema(type=types.Type.STRING, description="some lines of code assigning values to variables in STATE. This will be modified by the user.")
             }),
-            system_instruction=system_instruction(docs, import_variable)
+            system_instruction=system_instruction(docs, import_variable, memory.session["STATE"])
         ),
         contents=prompt
     )
