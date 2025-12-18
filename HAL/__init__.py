@@ -16,8 +16,8 @@ def HAL(query=None):
         return display.show("I'm sorry, Dave. I'm afraid I can't do that.")
     while True:
         original_cost = memory.session.get("cost", 0)
-        start_time = time.time()
         log_cost = lambda: display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
+        start_time = time.time()
         sequence = memory.session["sequence"]
         if query is not None:
             category = sort(query)
@@ -63,8 +63,6 @@ HAL.sort = sort
 HAL.plan = plan
 HAL.answer = answer
 HAL.code = code
-
-# Following are HAL methods
 
 _invoke = lambda name, import_variable={}: run.invoke(name, import_variable={ **memory.session, **import_variable })
 
