@@ -9,16 +9,14 @@ system_instruction = f"""You are a researcher preparing documents for a coming t
 Your task is to:
 1. **Filter:** Review all gathered documents. Identify the documents that are completely irrelevant or useless for the task. List their *indices* in the "remove" key.
 2. **Stop:** If gathered documents are sufficient or relevant queries are already searched, provide an empty list for "query". You must provide search queries if all documents are removed in the previous step.
-3. **Search:** Review the task and the *relevant* documents. Provide new search queries to find missing information or to recursively find documents/tools/methods mentioned in the relevant documents. If the task requires detailed implementation, you MUST search for ALL things refered by current documents. **Do NOT search for methods in common Python packages like "scipy", "numpy", "matplotlib", "yaml", etc. Absolutely do NOT repeat the provided searched queries.**
+3. **Search:** Review the task and the *relevant* documents. Provide new search queries to find missing information or to recursively find documents/tools/methods mentioned in the relevant documents. Unless the task is to make a plan, you MUST search for ALL things refered by current documents. **Do NOT search for methods in common Python packages like "scipy", "numpy", "matplotlib", "yaml", etc.**
 """
 
 user_content = lambda task, docs, query_section: f"""# Task:
 
 {task}
 
-# Searched Queries:
-
-The following queries must NOT be output:
+# Searched Queries (do NOT repeat these):
 
 {query_section}
 
@@ -43,8 +41,7 @@ def gather_document(query, max_iterations=6):
         docs = map(memory.get, doc_ids)
         query_section = '\n'.join([f"- {q}" for q in searched_queries])
         config = types.GenerateContentConfig(
-            temperature=0,
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
+            thinking_config=types.ThinkingConfig(thinking_level="LOW"),
             response_mime_type="application/json",
             response_schema=types.Schema(type=types.Type.OBJECT, required=["remove", "query"], properties={
                 "remove": types.Schema(type=types.Type.ARRAY, items=types.Schema(type=types.Type.INTEGER)),
@@ -52,7 +49,7 @@ def gather_document(query, max_iterations=6):
             system_instruction=system_instruction
         )
         res = memory.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3-flash-preview",
             contents=user_content(query, docs, query_section),
             config=config)
         add_generative_cost(res)

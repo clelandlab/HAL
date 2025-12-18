@@ -51,6 +51,7 @@ def HAL(query=None):
 sys.modules[__name__] = HAL
 
 HAL.auto = 0
+HAL.session = memory.session
 
 HAL.memory = memory
 HAL.display = display
@@ -69,6 +70,7 @@ def _export_ctx():
     main_namespace = sys.modules.get('__main__')
     main_namespace.STATE = memory.session["STATE"]
     main_namespace.INVOKE = _invoke
+    HAL.session = memory.session
 
 def _init(name, _config=None):
     memory.session["name"] = name

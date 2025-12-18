@@ -20,9 +20,10 @@ If the task requested by the user is completed, set the step type to "end" and o
 You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
 
 def plan(sequence, _doc={}):
-    docs = gather_document(f'Make a plan for the next step. Do NOT attempt to implement anything or solve the problem. I only need documents with "Plan" explicitly in the title.\n\nStep history:\n\n{sequence2text(sequence)}')
+    docs = gather_document(f'**Make a plan for the next step. ONLY find a few relevant high-level plan documents. All implementation details are irrelevant.**\n\nStep history:\n\n{sequence2text(sequence)}')
     _doc["plan"] = list(map(lambda d: d["id"], docs))
-    log("[HAL] Planning...", "Planning")
+    model = memory.session.get("model", "flash")
+    log(f"[HAL] Planning ({model})...", "Planning")
     config = types.GenerateContentConfig(
         system_instruction=system_instruction(docs),
         response_mime_type="application/json",
@@ -32,7 +33,7 @@ def plan(sequence, _doc={}):
         })
     )
     res = memory.client.models.generate_content(
-        model="gemini-3-pro-preview",
+        model=f"gemini-3-{model}-preview",
         config=config,
         contents=f"Step history:\n\n{sequence2text(sequence)}"
     )

@@ -28,7 +28,8 @@ prices = {
     "gemini-embedding-001": 0.15/1e6,
     "gemini-2.5-pro": (1.25/1e6, 10/1e6),
     "gemini-2.5-flash": (0.3/1e6, 2.5/1e6),
-    "gemini-3-pro-preview": (2/1e6, 12/1e6)
+    "gemini-3-pro-preview": (2/1e6, 12/1e6),
+    "gemini-3-flash-preview": (0.5/1e6, 3/1e6)
 }
 
 def add_embedding_cost(res):

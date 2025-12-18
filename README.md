@@ -23,6 +23,7 @@ HAL(query=None)
 
 # properties
 HAL.auto = 0
+HAL.session = {}
 
 # session operations
 HAL.reset()

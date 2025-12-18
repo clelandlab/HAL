@@ -34,9 +34,10 @@ The following packages are already imported and ready to use. Do NOT import thes
 def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
     docs = gather_document(prompt)
     _doc["code"] = list(map(lambda d: d["id"], docs))
-    log("[HAL] Coding...", "Coding")
+    model = memory.session.get("model", "flash")
+    log(f"[HAL] Coding ({model})...", "Coding")
     res = memory.client.models.generate_content(
-        model="gemini-3-pro-preview",
+        model=f"gemini-3-{model}-preview",
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
             response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={
