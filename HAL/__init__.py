@@ -40,15 +40,17 @@ def HAL(query=None):
         display.log(f"  > {step['_type']}")
         sequence.append(step)
         display.sequence(sequence)
-        handlers[step["_type"]](step)
+        pause = handlers[step["_type"]](step)
         display.log(f"[HAL] Step time: {time.time()-start_time:.2f} s")
         log_cost()
         display.sequence(sequence)
+        query = None
+        if pause:
+            break
         if HAL.auto <= 0 or step["_type"] == "end":
             HAL.auto = 0
             break
         HAL.auto -= 1
-        query = None
 
 sys.modules[__name__] = HAL
 
@@ -147,6 +149,7 @@ HAL.memorize = _memorize
 def end_handler(step):
     step["prompt"] = "Session ended."
     display.show("[HAL] session ended.")
+    return False
 handlers["end"] = end_handler
 
 def code_handler(step):
@@ -166,15 +169,17 @@ def code_handler(step):
                 run.execute(c, import_variable=memory.session)
                 print("Execution Completed with SIGNAL: ", STATE.get("SIGNAL", ""))
             except Exception as err:
-                STATE["SIGNAL"] = f"Runtime Error: {str(err)}"
+                STATE["SIGNAL"] = f"Runtime Error: {type(e).__name__}: {str(err)}"
                 print("Execution Error: ", str(err))
         display.log(f"[HAL] Execution completed with SIGNAL: {STATE['SIGNAL']}")
         display.sequence(memory.session["sequence"])
-    auto_exec = HAL.auto and request_input is None
+    auto_exec = HAL.auto and (request_input is None)
     button = widgets.Button(description="Auto Executed" if auto_exec else "Execute", button_style='' if auto_exec else 'primary')
     button.on_click(trigger_exec)
     _display(button, output)
     if auto_exec:
         trigger_exec(None)
+        return False
+    return True
 handlers["code"] = code_handler
 
