@@ -168,9 +168,7 @@ def code_handler(step):
         display.log(f"[HAL] Execution completed with SIGNAL: {STATE['SIGNAL']}")
         display.sequence(memory.session["sequence"])
         return False
-    display.new_cell(f"# [HAL] Imports:\n{utils.get_exec_import(memory.session)}\n# [HAL] Code:\n{c}")
-    if request_input is not None:
-        display.new_cell(f"# [HAL] Requesting user input:\n{request_input}")
+    display.new_cell((f"# [HAL] Requesting user input:\n{request_input}\n\n" if request_input is not None else "") + f"# [HAL] Imports:\n{utils.get_exec_import(memory.session)}\n\n# [HAL] Code:\n{c}")
     return True
 handlers["code"] = code_handler
 
