@@ -9,8 +9,10 @@ def execute(code, import_variable={ "name": "HAL" }):
     INVOKE = lambda name: invoke(name, import_variable=import_variable)
     exec(_code, { "STATE": STATE, "INVOKE": INVOKE }, { "STATE": STATE, "INVOKE": INVOKE })
 
-def invoke(name, import_variable={ "name": "HAL" }):
+def invoke(name=None, import_variable={ "name": "HAL" }):
     code = ""
+    if name is None:
+        name = -1
     if isinstance(name, int):
         step = memory.session["sequence"][name]
         code = step.get("_code", "")
