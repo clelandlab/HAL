@@ -21,7 +21,7 @@ def HAL(query=None):
         sequence = memory.session["sequence"]
         if query is not None:
             category = sort(query)
-            if category == "question":
+            if category == "query":
                 res = answer(query, sequence)
                 log_cost()
                 return display.show(res)

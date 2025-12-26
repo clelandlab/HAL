@@ -11,7 +11,7 @@ def state_type2text(STATE):
         s += f"- `{k}`: ({type(v).__name__})\n"
     return s
 
-system_instruction = lambda docs, import_variable, STATE: f"""You are a world class programming AI that generates Python code based on requirements. Write concise code using the given documents.
+system_instruction = lambda docs, import_variable, STATE: f"""You are a world class programming AI that generates Python code based on requirements. Write clear and concise code using the given documents.
 
 # Coding Guidelines
 
