@@ -26,7 +26,7 @@ user_content = lambda task, docs, query_section: f"""# Task:
 
 filter_docs = lambda indices_to_remove, doc_id_list: [doc_id for index, doc_id in enumerate(doc_id_list) if index not in set(indices_to_remove)]
 
-def gather_document(query, max_iterations=6):
+def gather_document(query, max_iterations=5):
     log("[HAL] Gathering documents...", "Gathering Documents")
     doc_ids = []
     def search(keyword):
