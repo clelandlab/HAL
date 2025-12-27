@@ -46,10 +46,10 @@ def HAL(query=None):
         display.sequence(sequence)
         query = None
         if pause:
-            break
+            return display.show("HAL sequence is paused.")
         if HAL.auto <= 0 or step["_type"] == "end":
             HAL.auto = 0
-            break
+            return display.show("HAL auto is stopped.")
         HAL.auto -= 1
 
 sys.modules[__name__] = HAL

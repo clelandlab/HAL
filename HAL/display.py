@@ -22,7 +22,9 @@ def log(content, status="Idle"):
     with log_output:
         print(content)
 
-show = lambda x: display(Markdown("---\n\n" + x + "\n\n---\n\n"))
+def show(content):
+    display(Markdown("---\n\n" + content + "\n\n---\n\n"))
+    return content
 
 def new_cell(content):
     get_ipython().set_next_input(content, replace=False)
