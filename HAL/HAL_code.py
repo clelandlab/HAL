@@ -25,7 +25,7 @@ In addition to all the imported packages below, you have two global variables: `
 
 # Current STATE Variables
 
-These variables are already existing in `STATE`. Not every variable is relevant to your task. Only use the specified or relevant variables. If any user input is necessary (e.g. missing directory path), specify them in `request_input` list. `request_input` should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
+These variables are already existing in `STATE`. Not every variable is relevant to your task. Only use the specified or relevant variables. If any user input is necessary (e.g. missing directory path), specify them in `request_input`, which should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
 
 {state_type2text(STATE)}
 
