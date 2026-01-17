@@ -1,4 +1,4 @@
-import time, json, gzip, hashlib
+import time, json, gzip, hashlib, os, datetime
 import numpy as np
 from .display import log
 from .utils import add_embedding_cost, config
@@ -18,12 +18,14 @@ data = {}
 cos_sim = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 def load():
     global data
-    with gzip.open(config["MEMORY_DATA_PATH"], 'rt') as f:
-        try:
+    try:
+        with gzip.open(config["MEMORY_DATA_PATH"], 'rt') as f:
             data = json.load(f)
-            log(f"[HAL] Memory loaded: {len(data)} documents.")
-        except:
-            data = {}
+        m_time_timestamp = os.path.getmtime(config["MEMORY_DATA_PATH"])
+        m_time_datetime = datetime.datetime.fromtimestamp(m_time_timestamp)
+        log(f"[HAL] Memory loaded: {len(data)} documents (version {m_time_datetime})")
+    except:
+        data = {}
     return data
 def save():
     with gzip.open(config["MEMORY_DATA_PATH"], 'wt') as f:
