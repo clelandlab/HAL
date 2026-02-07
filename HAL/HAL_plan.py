@@ -2,7 +2,7 @@ from google.genai import types
 import json
 from . import memory
 from .HAL_gather_document import gather_document
-from .utils import add_generative_cost, docs2text, sequence2text
+from .utils import add_generative_cost, docs2text, sequence2text, state_type2text
 from .display import log
 
 system_instruction = lambda docs: f"""You are a research manager leading a team. Given the step history, make a concise plan for the next step.
@@ -17,7 +17,9 @@ If you want to repeat a step, execute a step for multiple times, or execute a co
 
 If the task requested by the user is completed, set the step type to "end" and output empty prompt.
 
-You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:\n\n{docs2text(docs)}"""
+You may literally use an existing plan, with modification or added information. Refer to the following documents to make the plan:
+
+{docs2text(docs)}"""
 
 def plan(sequence, _doc={}):
     docs = gather_document(f'**Make a plan for the next step. ONLY find a few relevant high-level plan documents. All implementation details are irrelevant.**\n\nStep history:\n\n{sequence2text(sequence)}')
@@ -35,7 +37,7 @@ def plan(sequence, _doc={}):
     res = memory.client.models.generate_content(
         model=f"gemini-3-{model}-preview",
         config=config,
-        contents=f"Step history:\n\n{sequence2text(sequence)}"
+        contents=f"# Step history:\n\n{sequence2text(sequence)}\n\n # Current STATE variables:\n\n{state_type2text(memory.session['STATE'])}"
     )
     add_generative_cost(res)
     return json.loads(res.text)

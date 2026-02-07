@@ -2,14 +2,8 @@ from google.genai import types
 import json
 from . import memory
 from .HAL_gather_document import gather_document
-from .utils import add_generative_cost, docs2text, get_exec_import
+from .utils import add_generative_cost, docs2text, state_type2text, get_exec_import
 from .display import log
-
-def state_type2text(STATE):
-    s = ""
-    for k, v in STATE.items():
-        s += f"- `{k}`: ({type(v).__name__})\n"
-    return s
 
 system_instruction = lambda docs, import_variable, STATE: f"""You are a world class programming AI that generates Python code based on requirements. Write clear and concise code using the given documents.
 
@@ -23,17 +17,17 @@ In addition to all the imported packages below, you have two global variables: `
 2. `INVOKE` is a function that can be used to directly run other code segments or steps. `INVOKE("Code Segment [ID]")` can invoke a code segment in documents. When possible, you should use `INVOKE` instead of repeating code segments in documents.
   - Sometimes you may be instructed to invoke a number, e.g., `INVOKE(3)`, when the manager decides to run a previous step. Faithfully follow the instruction to invoke the specified step.
 
-# Current STATE Variables
+## Current STATE Variables
 
-These variables are already existing in `STATE`. Not every variable is relevant to your task. Only use the specified or relevant variables. If any user input is necessary (e.g. missing directory path), specify them in `request_input`, which should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
+These variables are already existing in `STATE`. **Take them as given. Do NOT check or request user input!** Not every variable is relevant to your task. Only use the specified or relevant variables. If any user input is necessary (e.g. missing data directory), specify them in `request_input`, which should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
 
 {state_type2text(STATE)}
 
-# Documents
+## Documents
 
 {docs2text(docs)}
 
-# Imports
+## Imports
 
 The following packages are already imported and ready to use. Do NOT import these packages again!
 
@@ -52,7 +46,7 @@ def code(prompt, import_variable={ "name": "HAL" }, _doc={}):
             response_mime_type="application/json",
             response_schema=types.Schema(type=types.Type.OBJECT, required=["code"], properties={
                 "code": types.Schema(type=types.Type.STRING),
-                "request_input": types.Schema(type=types.Type.STRING, description="some lines of code assigning values to variables in STATE. This will be modified by the user.")
+                "request_input": types.Schema(type=types.Type.STRING, description="some lines of code assigning values to variables in STATE. ONLY assignment statements are allowed. This will be modified by the user.")
             }),
             system_instruction=system_instruction(docs, import_variable, memory.session["STATE"])
         ),

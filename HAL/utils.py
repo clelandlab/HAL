@@ -20,6 +20,12 @@ def sequence2text(sequence):
     res += "--- End of Steps ---"
     return res
 
+def state_type2text(STATE):
+    s = ""
+    for k, v in STATE.items():
+        s += f"- `{k}`: ({type(v).__name__})\n"
+    return s
+
 evalStr = lambda s, var: eval(f"f'''{s}'''", None, var)
 
 get_exec_import = lambda var: evalStr(config["EXEC_IMPORT"], var)
