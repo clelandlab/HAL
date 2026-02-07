@@ -23,7 +23,7 @@ def sequence2text(sequence):
 def state_type2text(STATE):
     s = ""
     for k, v in STATE.items():
-        s += f"- `{k}`: ({type(v).__name__})\n"
+        s += f"- `{k}`({type(v).__name__})\n"
     return s
 
 evalStr = lambda s, var: eval(f"f'''{s}'''", None, var)

@@ -9,7 +9,8 @@ system_instruction = lambda docs, import_variable, STATE: f"""You are a world cl
 
 # Coding Guidelines
 
-The code should be runnable. Absolutely NO comments, NO explanations, NO side behaviors like printing messages. Do NOT use try-except to wrap all the code, it is taken care of by the caller.
+The code should be runnable. Absolutely NO comments, NO explanations, NO side behaviors like printing messages. Do NOT use try-except to wrap all the code, it is taken care of by the caller. If any user input is really necessary (e.g. missing data directory), specify them in `request_input`, which should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
+
 
 In addition to all the imported packages below, you have two global variables: `STATE` and `INVOKE`:
 1. `STATE` is a dictionary that persists across steps. Use it to store any variables or data that need to be retained or exported. Note that you cannot assign to `STATE`, you can only modify its contents.
@@ -17,9 +18,9 @@ In addition to all the imported packages below, you have two global variables: `
 2. `INVOKE` is a function that can be used to directly run other code segments or steps. `INVOKE("Code Segment [ID]")` can invoke a code segment in documents. When possible, you should use `INVOKE` instead of repeating code segments in documents.
   - Sometimes you may be instructed to invoke a number, e.g., `INVOKE(3)`, when the manager decides to run a previous step. Faithfully follow the instruction to invoke the specified step.
 
-## Current STATE Variables
+## Existing Variables in STATE
 
-These variables are already existing in `STATE`. **Take them as given. Do NOT check or request user input!** Not every variable is relevant to your task. Only use the specified or relevant variables. If any user input is necessary (e.g. missing data directory), specify them in `request_input`, which should be a code snippet that assigns values to variables in `STATE`. It will be modified by the user to input the necessary values.
+Take the following variables as given. Do NOT check or request user input! Not every variable is relevant to your task. Only use the specified or relevant variables.
 
 {state_type2text(STATE)}
 
