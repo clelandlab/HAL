@@ -16,6 +16,9 @@ def HAL(query=None):
         return display.show("I'm sorry, Dave. I'm afraid I can't do that.")
     while True:
         HAL.auto -= 1
+        if "SIGNAL" in memory.session["STATE"]:
+            sequence[-1]["SIGNAL"] = memory.session["STATE"]["SIGNAL"]
+            del memory.session["STATE"]["SIGNAL"]
         original_cost = memory.session.get("cost", 0)
         log_cost = lambda: display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
         start_time = time.time()
@@ -31,9 +34,6 @@ def HAL(query=None):
             return display.show("HAL is ready.")
         if sequence[-1].get("_type", "") == "end":
             return display.show("HAL session has ended. Please reset the session using `HAL.reset()`.")
-        if "SIGNAL" in memory.session["STATE"]:
-            sequence[-1]["SIGNAL"] = memory.session["STATE"]["SIGNAL"]
-            del memory.session["STATE"]["SIGNAL"]
         display.sequence(sequence)
         step = { "_doc": {} }
         res = plan(sequence, _doc=step["_doc"])
