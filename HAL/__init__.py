@@ -15,6 +15,7 @@ def HAL(query=None):
     if query is not None and "open the pod bay doors" in query.casefold():
         return display.show("I'm sorry, Dave. I'm afraid I can't do that.")
     while True:
+        HAL.auto -= 1
         original_cost = memory.session.get("cost", 0)
         log_cost = lambda: display.log(f"[HAL] Cost: ${memory.session.get('cost', 0)-original_cost:.5f}. (Session Total: ${memory.session.get('cost', 0):.5f})\n")
         start_time = time.time()
@@ -50,7 +51,6 @@ def HAL(query=None):
         if HAL.auto <= 0 or step["_type"] == "end":
             HAL.auto = 0
             return display.show("HAL auto is stopped.")
-        HAL.auto -= 1
 
 sys.modules[__name__] = HAL
 
@@ -157,7 +157,7 @@ def code_handler(step):
     c, request_input = code(step["prompt"], import_variable=memory.session, _doc=step["_doc"])
     step["_code"] = c
     display.sequence(memory.session["sequence"])
-    if HAL.auto and (request_input is None):
+    if HAL.auto >= 0 and (request_input is None):
         display.log(f"[HAL] Executing...", "Executing")
         try:
             run.execute(c, import_variable=memory.session)
