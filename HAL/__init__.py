@@ -59,6 +59,7 @@ HAL.session = memory.session
 
 HAL.memory = memory
 HAL.display = display
+HAL.utils = utils
 
 HAL.gather_document = gather_document
 HAL.sort = sort
