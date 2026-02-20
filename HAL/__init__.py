@@ -75,7 +75,7 @@ def _export_ctx():
     main_namespace.INVOKE = _invoke
     HAL.session = memory.session
 
-def _init(name, _config=None):
+def _init(name="", _config=None):
     memory.session["name"] = name
     if _config is None:
         _config = os.path.join(os.path.dirname(__file__), "../config.json")

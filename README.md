@@ -12,6 +12,19 @@ Create a `config.json` with the following content:
 }
 ```
 
+## Get Started
+
+```python
+import HAL
+HAL.init() # initialization: loading memory, setting up display, etc.
+# HAL.auto = 3 # auto-execution: HAL will automatically execute up to 3 steps
+
+HAL.reset() # this reset HAL session
+HAL("Do something") # main interface: query HAL
+
+HAL() # continue without user input
+```
+
 ## API
 
 ```python
