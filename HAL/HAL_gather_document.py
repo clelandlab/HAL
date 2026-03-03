@@ -49,7 +49,7 @@ def gather_document(query, max_iterations=5):
             system_instruction=system_instruction
         )
         res = memory.client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model="gemini-flash-latest",
             contents=user_content(query, docs, query_section),
             config=config)
         add_generative_cost(res)

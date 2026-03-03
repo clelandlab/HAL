@@ -24,7 +24,7 @@ You may literally use an existing plan, with modification or added information. 
 def plan(sequence, _doc={}):
     docs = gather_document(f'**Make a plan for the next step. ONLY find a few relevant high-level plan documents. All implementation details are irrelevant.**\n\nStep history:\n\n{sequence2text(sequence)}')
     _doc["plan"] = list(map(lambda d: d["id"], docs))
-    model = memory.session.get("model", "gemini-3-flash-preview")
+    model = memory.session.get("model", "gemini-flash-latest")
     log(f"[HAL] Planning ({model})...", "Planning")
     config = types.GenerateContentConfig(
         system_instruction=system_instruction(docs),

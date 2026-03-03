@@ -19,7 +19,7 @@ def sort(prompt):
         response_schema=types.Schema(type=types.Type.OBJECT, required=["category"], properties={ "category": types.Schema(type=types.Type.STRING) })
     )
     res = memory.client.models.generate_content(
-        model="gemini-3-flash-preview",
+        model="gemini-flash-latest",
         config=config,
         contents=prompt
     )
