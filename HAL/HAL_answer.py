@@ -7,10 +7,10 @@ from .display import log
 def answer(prompt, sequence):
     docs = gather_document(prompt)
     system_instruction = f"You are a researcher on experimental quantum computing. Answer the question concisely with NO comments. Use the provided context and the following documents (you might refer to document title, but NOT document number):\n\n{docs2text(docs)}"
-    model = memory.session.get("model", "flash")
+    model = memory.session.get("model", "gemini-3-flash-preview")
     log(f"[HAL] Answering ({model})...", "Answering")
     res = memory.client.models.generate_content(
-        model=f"gemini-3-{model}-preview",
+        model=model,
         config=types.GenerateContentConfig(system_instruction=system_instruction),
         contents=f"Context:\n\n{sequence2text(sequence)}\n\nQuestion:\n\n{prompt}"
     )
