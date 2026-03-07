@@ -16,20 +16,6 @@ data = {}
 
 # helper functions
 cos_sim = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-def load():
-    global data
-    try:
-        with gzip.open(config["MEMORY_DATA_PATH"], 'rt') as f:
-            data = json.load(f)
-        m_time_timestamp = os.path.getmtime(config["MEMORY_DATA_PATH"])
-        m_time_datetime = datetime.datetime.fromtimestamp(m_time_timestamp)
-        log(f"[HAL] Memory loaded: {len(data)} documents (version {m_time_datetime})")
-    except:
-        data = {}
-    return data
-def save():
-    with gzip.open(config["MEMORY_DATA_PATH"], 'wt') as f:
-        json.dump(data, f)
 def sha256str(s):
     h = hashlib.sha256()
     h.update(s.encode('utf-8'))
@@ -43,6 +29,21 @@ def embed(content, task_type="retrieval_document"):
         return None
 
 # operations
+def load():
+    global data, mean_embedding
+    try:
+        with gzip.open(config["MEMORY_DATA_PATH"], 'rt') as f:
+            data = json.load(f)
+        m_time_timestamp = os.path.getmtime(config["MEMORY_DATA_PATH"])
+        m_time_datetime = datetime.datetime.fromtimestamp(m_time_timestamp)
+        log(f"[HAL] Memory loaded: {len(data)} documents (version {m_time_datetime})")
+    except:
+        data = {}
+    return data
+def save():
+    with gzip.open(config["MEMORY_DATA_PATH"], 'wt') as f:
+        json.dump(data, f)
+
 def add(content, meta={}):
     doc_id = sha256str(content)
     data_dict = {"content": content, "embedding": embed(content)}
