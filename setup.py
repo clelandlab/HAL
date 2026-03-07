@@ -1,8 +1,46 @@
 from setuptools import setup, find_packages
+import pathlib
+
+here = pathlib.Path(__file__).parent.resolve()
+def get_version(rel_path):
+    return (here / rel_path).read_text().strip()
 
 setup(
-    name='HAL',
-    version='0.0',
-    packages=find_packages("."),
-    install_requires=['google-genai', 'ipywidgets']
+    name="clelandlab-HAL",
+    version=get_version("quick/VERSION"),
+    description="Heuristic Autonomous Lab",
+    long_description=(here / "README.md").read_text(encoding="utf-8"),
+    long_description_content_type="text/markdown",
+    url="https://github.com/clelandlab/HAL",
+    author="Cleland Lab",
+    author_email="clelandlab@proton.me",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Build Tools",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3 :: Only",
+    ],
+    keywords="LLM,AI,quantum,experiment,measurement,qubit,control",
+    packages=find_packages(where="."),
+    python_requires=">=3.8, <4",
+    install_requires=[
+        "google-genai",
+        "ipywidgets",
+        "ipython"
+    ],
+    package_data={
+        "HAL": ["VERSION"],
+    },
+    include_package_data=True,
+    project_urls={
+        "Source": "https://github.com/clelandlab/HAL",
+        "Tracker": "https://github.com/clelandlab/HAL/issues",
+    },
 )

@@ -1,5 +1,7 @@
 # HAL
 
+Heuristic Autonomous Lab
+
 ## Config
 
 Create a `config.json` with the following content:
