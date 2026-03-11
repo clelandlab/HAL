@@ -7,7 +7,7 @@ def get_version(rel_path):
 
 setup(
     name="clelandlab-HAL",
-    version=get_version("quick/VERSION"),
+    version=get_version("HAL/VERSION"),
     description="Heuristic Autonomous Lab",
     long_description=(here / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
