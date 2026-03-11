@@ -9,6 +9,12 @@ from .HAL_plan import plan
 from .HAL_answer import answer
 from .HAL_code import code
 
+def get_version():
+    with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as version_file:
+        return version_file.read().strip()
+
+__version__ = get_version()
+
 handlers = {}
 
 def HAL(query=None):
