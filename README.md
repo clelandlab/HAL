@@ -54,15 +54,28 @@ HAL.search(query)
 HAL.memorize(content, meta={ "source": HAL.name })
 
 # low-level components
-HAL.memory
-HAL.display
-# Agents
+HAL.memory   # knowledge base
+HAL.display  # UI rendering for JupyterLab
+# Components
 HAL.gather_document
 HAL.sort
 HAL.plan
 HAL.answer
 HAL.code
 ```
+
+## Directory Structure
+
+- `HAL/HAL_answer.py`: Answer component
+- `HAL/HAL_code.py`: Develop component (developer)
+- `HAL/HAL_gather_document.py`: Search agent
+- `HAL/HAL_plan.py`: Plan component (planner)
+- `HAL/HAL_sort.py`: Preprocess component
+- `HAL/__init__.py`: Entrypoint and main interface
+- `HAL/memory.py`: Knowledge base implementation
+- `HAL/display.py`: UI rendering for JupyterLab
+- `HAL/run.py`: Execution runtime
+- `HAL/utils.py`: Utility functions
 
 ## Cite this work
 
