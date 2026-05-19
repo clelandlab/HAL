@@ -31,14 +31,14 @@ evalStr = lambda s, var: eval(f"f'''{s}'''", None, var)
 get_exec_import = lambda var: evalStr(config["EXEC_IMPORT"], var)
 
 prices = {
-    "gemini-embedding-001": 0.15/1e6,
+    "gemini-embedding-2": 0.2/1e6,
     "gemini-3.1-pro-preview": (2/1e6, 12/1e6),
     "gemini-3-flash-preview": (0.5/1e6, 3/1e6),
     "gemini-3.5-flash": (1.5/1e6, 9/1e6)
 }
 
 def add_embedding_cost(res):
-    total_cost = res.total_tokens * prices["gemini-embedding-001"]
+    total_cost = res.total_tokens * prices["gemini-embedding-2"]
     memory.session["cost"] += total_cost
     return total_cost
 

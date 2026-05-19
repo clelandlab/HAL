@@ -20,11 +20,12 @@ def sha256str(s):
     h = hashlib.sha256()
     h.update(s.encode('utf-8'))
     return h.hexdigest()
-def embed(content, task_type="retrieval_document"):
+def embed(content, search=False):
     try:
-        model = "gemini-embedding-001"
-        add_embedding_cost(client.models.count_tokens(model=model, contents=content))
-        return client.models.embed_content(model=model, contents=content, config={"task_type": task_type}).embeddings[0].values
+        model = "gemini-embedding-2"
+        _content = f"task: search result | query: {content}" if search else f"title: none | text: {content}"
+        add_embedding_cost(client.models.count_tokens(model=model, contents=_content))
+        return client.models.embed_content(model=model, contents=_content).embeddings[0].values
     except:
         return None
 
@@ -60,10 +61,10 @@ def delete(doc_id):
     del data[doc_id]
 
 # return a list of (doc_id, score)
-def search(q, maxn=5, cutoff_gradient=0.05, threshold=0.6, filter=None):
+def search(q, maxn=5, cutoff_gradient=0.8, threshold=0.6, filter=None):
     scores = []
     score = 0
-    q_embedding = embed(q, task_type="retrieval_query")
+    q_embedding = embed(q, search=True)
     for doc_id, data_dict in data.items():
         if filter is not None and not filter(data_dict):
             continue
