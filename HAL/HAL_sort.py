@@ -12,6 +12,7 @@ system_instruction = '''You are an expert at classifying user prompts into categ
 
 def sort(prompt):
     log("[HAL] Sorting...", "Sorting")
+    model = memory.session.get("model", "gemini-flash-latest")
     config = types.GenerateContentConfig(
         thinking_config=types.ThinkingConfig(thinking_level="LOW"),
         system_instruction=system_instruction,
@@ -19,7 +20,7 @@ def sort(prompt):
         response_schema=types.Schema(type=types.Type.OBJECT, required=["category"], properties={ "category": types.Schema(type=types.Type.STRING) })
     )
     res = memory.client.models.generate_content(
-        model="gemini-flash-latest",
+        model=model,
         config=config,
         contents=prompt
     )
