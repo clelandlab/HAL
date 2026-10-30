@@ -29,6 +29,7 @@ filter_docs = lambda indices_to_remove, doc_id_list: [doc_id for index, doc_id i
 def gather_document(query, max_iterations=5):
     log("[HAL] Gathering documents...", "Gathering Documents")
     doc_ids = []
+    model = memory.session.get("model", "gemini-flash-latest")
     def search(keyword):
         res = memory.search(keyword)
         for doc_id, _ in res:
@@ -49,7 +50,7 @@ def gather_document(query, max_iterations=5):
             system_instruction=system_instruction
         )
         res = memory.client.models.generate_content(
-            model="gemini-flash-latest",
+            model=model,
             contents=user_content(query, docs, query_section),
             config=config)
         add_generative_cost(res)
